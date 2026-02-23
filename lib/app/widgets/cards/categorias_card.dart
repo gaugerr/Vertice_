@@ -1,5 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rancho_consciente/app/model/categoria_model.dart';
+import 'package:rancho_consciente/app/view/itens_view.dart';
 
 class CategoriasCard extends StatelessWidget {
   final CategoriaModel categorias;
@@ -14,10 +16,12 @@ class CategoriasCard extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () {
-          // Navigator.push(
-          //   context,
-          //   CupertinoPageRoute(builder: (_) => CategoriasView()),
-          // );
+          Navigator.push(
+            context,
+            CupertinoPageRoute(
+              builder: (_) => ItensView(categoriaModel: categorias),
+            ),
+          );
         },
         child: Padding(
           padding: const EdgeInsets.all(8.0),
