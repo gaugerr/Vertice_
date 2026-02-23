@@ -28,6 +28,7 @@ class App extends StatelessWidget {
         listenable: ranchoViewModel,
         builder: (context, child) {
           return MyGridBuilder(
+            colunas: 2,
             itemCount: ranchoViewModel.listasCompras.length,
             itemBuilder: (context, index) {
               final rancho = ranchoViewModel.listasCompras[index];

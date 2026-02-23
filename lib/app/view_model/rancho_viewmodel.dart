@@ -19,7 +19,9 @@ class RanchoViewModel extends ChangeNotifier {
         descricao: descricao,
       ),
     );
-
     notifyListeners();
   }
+
+  //TODO
+  void adicionarItem() {}
 }

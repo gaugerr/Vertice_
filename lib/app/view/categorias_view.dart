@@ -13,6 +13,7 @@ class CategoriasView extends StatelessWidget {
       appBar: AppBar(centerTitle: true, title: Text(ranchoModel.mercado)),
 
       body: MyGridBuilder(
+        colunas: 2,
         itemCount: ranchoModel.categorias.length,
         itemBuilder: (context, index) {
           final categorias = ranchoModel.categorias[index];
