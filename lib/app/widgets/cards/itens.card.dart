@@ -14,25 +14,30 @@ class ItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          Checkbox(
-            value: itemModel.isComprado,
-            onChanged: (bool? value) => {
-              ranchoViewModel.toggleIsComprado(itemModel),
-            },
-          ),
-
-          Text(
-            'Item: ${itemModel.nomeItem}',
-            style: TextStyle(
-              decoration: itemModel.isComprado
-                  ? TextDecoration.lineThrough
-                  : TextDecoration.none,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Checkbox(
+              value: itemModel.isComprado,
+              onChanged: (bool? value) => {
+                ranchoViewModel.toggleIsComprado(itemModel),
+              },
             ),
-          ),
-        ],
+
+            Text(
+              'Item: ${itemModel.nomeItem}',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                decoration: itemModel.isComprado
+                    ? TextDecoration.lineThrough
+                    : TextDecoration.none,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
