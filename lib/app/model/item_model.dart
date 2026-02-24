@@ -14,8 +14,4 @@ class ItemModel {
     this.unidade = 'un',
     this.isComprado = false,
   });
-
-  void toggleIsComprado() {
-    isComprado = !isComprado;
-  }
 }

@@ -40,9 +40,9 @@ class _ItensViewState extends State<ItensView> {
       body: Column(
         children: [
           TextFormField(
-            decoration: InputDecoration(hint: Text('Adicionar Item')),
+            decoration: InputDecoration(hint: Text('Adicionar item')),
             focusNode: _focusNode,
-            key: _formKey,
+            // key: _formKey,
             controller: _nameItemController,
             onFieldSubmitted: (value) {
               if (value.isNotEmpty) {
@@ -65,7 +65,10 @@ class _ItensViewState extends State<ItensView> {
                 itemCount: widget.categoriaModel.itens.length,
                 itemBuilder: (context, index) {
                   final itemAtual = widget.categoriaModel.itens[index];
-                  return ItemCard(itemModel: itemAtual);
+                  return ItemCard(
+                    ranchoViewModel: widget.ranchoViewModel,
+                    itemModel: itemAtual,
+                  );
                 },
               ),
             ),

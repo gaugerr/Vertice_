@@ -33,4 +33,9 @@ class RanchoViewModel extends ChangeNotifier {
 
     notifyListeners();
   }
+
+  void toggleIsComprado(ItemModel item) {
+    item.isComprado = !item.isComprado;
+    notifyListeners();
+  }
 }
