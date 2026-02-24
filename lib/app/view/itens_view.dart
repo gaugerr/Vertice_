@@ -18,19 +18,15 @@ class ItensView extends StatefulWidget {
 }
 
 class _ItensViewState extends State<ItensView> {
-  // Chave global para o formulário, essencial para acionar a validação
   final _formKey = GlobalKey<FormState>();
 
-  // Controlador para o TextFormField, para acessar o texto digitado
   final TextEditingController _nameItemController = TextEditingController();
-
-  // Variável para controlar o estado de carregamento/processamento do botão
-  final bool _isProcessing = false;
+  final FocusNode _focusNode = FocusNode();
 
   @override
   void dispose() {
-    // É importante descartar o controlador quando o widget não for mais necessário
     _nameItemController.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -44,6 +40,8 @@ class _ItensViewState extends State<ItensView> {
       body: Column(
         children: [
           TextFormField(
+            decoration: InputDecoration(hint: Text('Adicionar Item')),
+            focusNode: _focusNode,
             key: _formKey,
             controller: _nameItemController,
             onFieldSubmitted: (value) {
@@ -54,6 +52,7 @@ class _ItensViewState extends State<ItensView> {
                 );
                 _nameItemController
                     .clear(); // Aqui usamos o controller para resetar o campo
+                _focusNode.requestFocus();
               }
             },
           ),
