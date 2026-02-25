@@ -25,21 +25,31 @@ class _ItemCardState extends State<ItemCard> {
 
   // Variável para controlar o estado de carregamento/processamento do botão
   //final bool _isProcessing = false;
-
-  @override
-  void dispose() {
-    //descartar controladores pra evitar memory leak
-    _qtdController.dispose();
-    _precoController.dispose();
-    super.dispose();
-  }
-
+  final FocusNode _precoFocusNode = FocusNode();
   @override
   void initState() {
     super.initState();
-    // Inicializamos os controllers com os valores que já existem no Model
+
+    // O listener mais simples: se ganhou foco, seleciona tudo.
+    _precoFocusNode.addListener(() {
+      if (_precoFocusNode.hasFocus) {
+        _precoController.selection = TextSelection(
+          baseOffset: 0,
+          extentOffset: _precoController.text.length,
+        );
+      }
+    });
+
     _qtdController.text = widget.itemModel.quantidade.toString();
     _precoController.text = widget.itemModel.preco.toStringAsFixed(2);
+  }
+
+  @override
+  void dispose() {
+    _qtdController.dispose();
+    _precoController.dispose();
+    _precoFocusNode.dispose(); // Não esqueça de descartar
+    super.dispose();
   }
 
   @override
@@ -105,6 +115,7 @@ class _ItemCardState extends State<ItemCard> {
                           decimal: true,
                         ),
                         controller: _qtdController,
+                        textInputAction: TextInputAction.next,
                         decoration: InputDecoration(
                           border: InputBorder.none,
                           label: Text('Quantidade'),
@@ -113,6 +124,7 @@ class _ItemCardState extends State<ItemCard> {
                             vertical: 4,
                           ),
                         ),
+
                         onTap: () {
                           _qtdController.selection = TextSelection(
                             baseOffset: 0,
@@ -125,6 +137,7 @@ class _ItemCardState extends State<ItemCard> {
                       flex: 1,
                       child: TextFormField(
                         controller: _precoController,
+                        focusNode: _precoFocusNode,
                         keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,
                         ),
