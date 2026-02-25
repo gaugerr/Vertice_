@@ -22,7 +22,7 @@ class MyGridBuilder extends StatelessWidget {
         crossAxisSpacing: 10,
         mainAxisSpacing: 10,
         crossAxisCount: colunas,
-        childAspectRatio: colunas == 1 ? 5.0 : 0.8,
+        childAspectRatio: colunas == 1 ? 2.5 : 0.8,
       ),
       itemBuilder: itemBuilder,
     );
