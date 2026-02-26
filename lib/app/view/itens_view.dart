@@ -34,8 +34,44 @@ class _ItensViewState extends State<ItensView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        centerTitle: true,
         title: Text(widget.categoriaModel.tituloCategoria),
+        actions: [
+          ListenableBuilder(
+            listenable: widget.ranchoViewModel,
+            builder: (context, _) {
+              final total = widget.ranchoViewModel.calcularTotalCategoria(
+                widget.categoriaModel,
+              );
+
+              return Padding(
+                padding: const EdgeInsets.only(right: 30),
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: Colors.green.shade300,
+                        width: 1,
+                      ),
+                    ),
+                    child: Text(
+                      'Total: R\$ ${total.toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        color: Colors.green,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
