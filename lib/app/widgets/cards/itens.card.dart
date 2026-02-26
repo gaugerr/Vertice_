@@ -82,7 +82,9 @@ class _ItemCardState extends State<ItemCard> {
                 Spacer(),
                 if (widget.itemModel.isComprado) ...[
                   Text(
-                    'Total: R\$ ${widget.itemModel.preco.toStringAsFixed(2)}',
+                    'Total: R\$ ${widget.ranchoViewModel.calcularTotalItem(
+                      widget.itemModel, // O modelo que tem a quantidade e p preco ja atualzado
+                    ).toStringAsFixed(2)}',
                   ),
                 ],
               ],
@@ -136,6 +138,15 @@ class _ItemCardState extends State<ItemCard> {
                             extentOffset: _qtdController.text.length,
                           );
                         },
+                        onChanged: (value) {
+                          final novaQtd =
+                              double.tryParse(value.replaceAll(',', '.')) ??
+                              0.0;
+                          widget.ranchoViewModel.atualizarQtdItem(
+                            widget.itemModel,
+                            novaQtd,
+                          );
+                        },
                       ),
                     ),
                     Expanded(
@@ -159,6 +170,15 @@ class _ItemCardState extends State<ItemCard> {
                           _precoController.selection = TextSelection(
                             baseOffset: 0,
                             extentOffset: _precoController.text.length,
+                          );
+                        },
+                        onChanged: (value) {
+                          final novoPreco =
+                              double.tryParse(value.replaceAll(',', '.')) ??
+                              0.0;
+                          widget.ranchoViewModel.atualizarPrecoItem(
+                            widget.itemModel,
+                            novoPreco,
                           );
                         },
                       ),

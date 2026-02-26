@@ -46,4 +46,31 @@ class RanchoViewModel extends ChangeNotifier {
     item.isComprado = !item.isComprado;
     notifyListeners();
   }
+
+  double calcularTotalCategoria(CategoriaModel categoria) {
+    double totalCategoria = categoria.itens
+        .where((item) => item.isComprado)
+        .fold(0.0, (soma, item) => soma + (item.preco * item.quantidade));
+    notifyListeners();
+    return totalCategoria;
+  }
+
+  double calcularTotalItem(ItemModel item) {
+    return item.quantidade * item.preco;
+  }
+
+  void atualizarPrecoItem(ItemModel item, double novoPreco) {
+    item.preco = novoPreco;
+    notifyListeners();
+  }
+
+  void atualizarQtdItem(ItemModel item, double novaQtd) {
+    item.quantidade = novaQtd;
+    notifyListeners();
+  }
+
+  void atualizarUnidadeItem(ItemModel item, String novaUnidade) {
+    item.unidade = novaUnidade;
+    notifyListeners();
+  }
 }
