@@ -56,7 +56,11 @@ class RanchoViewModel extends ChangeNotifier {
   }
 
   double calcularTotalItem(ItemModel item) {
-    return item.quantidade * item.preco;
+    if (item.unidade == 'un') {
+      return item.quantidade * item.preco;
+    } else {
+      return item.preco;
+    }
   }
 
   void atualizarPrecoItem(ItemModel item, double novoPreco) {
