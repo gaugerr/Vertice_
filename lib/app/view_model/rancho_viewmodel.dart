@@ -55,6 +55,14 @@ class RanchoViewModel extends ChangeNotifier {
     return totalCategoria;
   }
 
+  double calcularTotalRancho(RanchoModel rancho) {
+    return rancho.categorias.fold(
+      0.0,
+      (totalAcumulado, categoria) =>
+          totalAcumulado + calcularTotalCategoria(categoria),
+    );
+  }
+
   double calcularTotalItem(ItemModel item) {
     if (item.unidade == 'un') {
       return item.quantidade * item.preco;

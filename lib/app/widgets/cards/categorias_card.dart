@@ -44,6 +44,33 @@ class CategoriasCard extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              const SizedBox(height: 30),
+              ListenableBuilder(
+                listenable: ranchoViewModel,
+                builder: (context, child) {
+                  return Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: Colors.green.shade300,
+                        width: 1,
+                      ),
+                    ),
+                    child: Text(
+                      'Total: R\$ ${ranchoViewModel.calcularTotalCategoria(categorias).toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        color: Colors.green,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                    ),
+                  );
+                },
+              ),
 
               const SizedBox(height: 4),
               // Text(
