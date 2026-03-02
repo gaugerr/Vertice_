@@ -33,7 +33,7 @@ class CategoriasCard extends StatelessWidget {
           );
         },
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(14.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -54,19 +54,42 @@ class CategoriasCard extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
+                      color: Colors.black26,
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: Colors.green.shade300,
-                        width: 1,
-                      ),
+                      border: Border.all(color: Colors.white60, width: 1),
                     ),
-                    child: Text(
-                      'Total: R\$ ${ranchoViewModel.calcularTotalCategoria(categorias).toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        color: Colors.green,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ...ranchoViewModel
+                            .getListaItens(categorias)
+                            .take(4)
+                            .map(
+                              (nome) => Padding(
+                                padding: const EdgeInsets.only(bottom: 2),
+                                child: Text(
+                                  "• $nome", // Um bullet point ajuda na leitura
+                                  style: TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 14,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ),
+
+                        if (ranchoViewModel.getListaItens(categorias).length >
+                            4)
+                          Text(
+                            "+ ${ranchoViewModel.getListaItens(categorias).length - 4} itens...",
+                            style: TextStyle(
+                              color: Colors.deepPurpleAccent,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                      ],
                     ),
                   );
                 },
