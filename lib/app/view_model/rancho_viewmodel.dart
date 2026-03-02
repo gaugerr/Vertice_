@@ -46,6 +46,12 @@ class RanchoViewModel extends ChangeNotifier {
     return categoria.itens.map((item) => item.nomeItem).toList();
   }
 
+  bool isCategoriaCompleta(CategoriaModel categoria) {
+    final itens = categoria.itens;
+    if (itens.isEmpty) return false;
+    return itens.every((item) => item.isComprado == true);
+  }
+
   void toggleIsComprado(ItemModel item) {
     item.isComprado = !item.isComprado;
     notifyListeners();
