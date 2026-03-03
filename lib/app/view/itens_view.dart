@@ -45,7 +45,7 @@ class _ItensViewState extends State<ItensView> {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: Colors.green.shade300, width: 1),
                 ),
                 child: ListenableBuilder(
@@ -64,57 +64,66 @@ class _ItensViewState extends State<ItensView> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Form(
-            key: _formKey,
-            child: TextFormField(
-              controller: _nameItemController,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Digite um item';
-                } else if (value.length > 50) {
-                  return 'O item não pode exceder 50 caracteres';
-                }
-                return null;
-              },
-              decoration: InputDecoration(hintText: 'Adicionar item'),
-              focusNode: _focusNode,
+      body: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          children: [
+            SizedBox(height: 20),
+            Form(
+              key: _formKey,
+              child: TextFormField(
+                controller: _nameItemController,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Digite um item';
+                  } else if (value.length > 50) {
+                    return 'O item não pode exceder 50 caracteres';
+                  }
+                  return null;
+                },
+                decoration: InputDecoration(
+                  hintText: 'Adicionar item',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+                focusNode: _focusNode,
 
-              onFieldSubmitted: (value) {
-                if (_formKey.currentState!.validate()) {
-                  widget.ranchoViewModel.adicionarItem(
-                    categoria: widget.categoriaModel,
-                    nomeDigitado: value.trim(),
-                  );
-                  _nameItemController.clear(); //limpa o campo ao dar enter
-                  _formKey.currentState!
-                      .reset(); //reseta a mensagem de erro do campo
-                  _focusNode.requestFocus(); //mantém o teclado na tela
-                } else {
-                  // mostra erros se a validação falhar
-                }
-              },
-            ),
-          ),
-
-          Expanded(
-            child: ListenableBuilder(
-              listenable: widget.ranchoViewModel,
-              builder: (context, child) => MyListViewBuilder(
-                itemCount: widget.categoriaModel.itens.length,
-                itemBuilder: (context, index) {
-                  final itemAtual = widget.categoriaModel.itens[index];
-                  return ItemCard(
-                    ranchoViewModel: widget.ranchoViewModel,
-                    itemModel: itemAtual,
-                  );
+                onFieldSubmitted: (value) {
+                  if (_formKey.currentState!.validate()) {
+                    widget.ranchoViewModel.adicionarItem(
+                      categoria: widget.categoriaModel,
+                      nomeDigitado: value.trim(),
+                    );
+                    _nameItemController.clear(); //limpa o campo ao dar enter
+                    _formKey.currentState!
+                        .reset(); //reseta a mensagem de erro do campo
+                    _focusNode.requestFocus(); //mantém o teclado na tela
+                  } else {
+                    // mostra erros se a validação falhar
+                  }
                 },
               ),
             ),
-          ),
-        ],
+
+            Expanded(
+              child: ListenableBuilder(
+                listenable: widget.ranchoViewModel,
+                builder: (context, child) => MyListViewBuilder(
+                  itemCount: widget.categoriaModel.itens.length,
+                  itemBuilder: (context, index) {
+                    final itemAtual = widget.categoriaModel.itens[index];
+                    return ItemCard(
+                      ranchoViewModel: widget.ranchoViewModel,
+                      itemModel: itemAtual,
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
