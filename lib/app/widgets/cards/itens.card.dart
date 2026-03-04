@@ -16,10 +16,8 @@ class ItemCard extends StatefulWidget {
 }
 
 class _ItemCardState extends State<ItemCard> {
-  //key pra o Form() pra usar a validação
   final _formKey = GlobalKey<FormState>();
 
-  // Controladores para acessar o texto digitado
   final TextEditingController _qtdController = TextEditingController();
   final TextEditingController _precoController = TextEditingController();
 
@@ -30,7 +28,6 @@ class _ItemCardState extends State<ItemCard> {
   void initState() {
     super.initState();
 
-    // O listener mais simples: se ganhou foco, seleciona tudo.
     _precoFocusNode.addListener(() {
       if (_precoFocusNode.hasFocus) {
         _precoController.selection = TextSelection(
@@ -48,7 +45,7 @@ class _ItemCardState extends State<ItemCard> {
   void dispose() {
     _qtdController.dispose();
     _precoController.dispose();
-    _precoFocusNode.dispose(); // Não esqueça de descartar
+    _precoFocusNode.dispose();
     super.dispose();
   }
 
@@ -56,19 +53,20 @@ class _ItemCardState extends State<ItemCard> {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.all(8),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Row(
               children: [
                 Checkbox(
+                  visualDensity: VisualDensity.compact,
                   value: widget.itemModel.isComprado,
                   onChanged: (bool? value) => {
                     widget.ranchoViewModel.toggleIsComprado(widget.itemModel),
                   },
                 ),
-
+                SizedBox(width: 10),
                 Text(
                   widget.itemModel.nomeItem,
                   style: TextStyle(
@@ -82,20 +80,20 @@ class _ItemCardState extends State<ItemCard> {
                 Spacer(),
                 if (widget.itemModel.isComprado) ...[
                   Text(
-                    'Total: R\$ ${widget.ranchoViewModel.calcularTotalItem(
-                      widget.itemModel, // O modelo que tem a quantidade e p preco ja atualzado
-                    ).toStringAsFixed(2)}',
+                    'Total: R\$ ${widget.ranchoViewModel.calcularTotalItem(widget.itemModel).toStringAsFixed(2)}',
                   ),
+                  SizedBox(width: 10),
                 ],
               ],
             ),
+
             Form(
               key: _formKey,
               child: Row(
                 children: [
                   if (widget.itemModel.isComprado) ...[
-                    const SizedBox(width: 10),
                     Expanded(
+                      flex: 3,
                       child: DropdownButtonFormField<String>(
                         value: widget.itemModel.unidade, // "un", "kg", ou "l"
                         decoration: const InputDecoration(
@@ -123,7 +121,7 @@ class _ItemCardState extends State<ItemCard> {
                       ),
                     ),
                     Expanded(
-                      flex: 1,
+                      flex: 2,
                       child: TextFormField(
                         keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,
@@ -157,8 +155,9 @@ class _ItemCardState extends State<ItemCard> {
                       ),
                     ),
                     Expanded(
-                      flex: 1,
+                      flex: 2,
                       child: TextFormField(
+                        textAlign: TextAlign.center,
                         controller: _precoController,
                         focusNode: _precoFocusNode,
                         keyboardType: const TextInputType.numberWithOptions(
@@ -168,6 +167,9 @@ class _ItemCardState extends State<ItemCard> {
                         decoration: InputDecoration(
                           border: InputBorder.none,
                           label: Text('Preço'),
+
+                          floatingLabelAlignment: FloatingLabelAlignment.center,
+                          alignLabelWithHint: true,
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 8,
                             vertical: 4,
