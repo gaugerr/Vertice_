@@ -1,4 +1,6 @@
 import 'package:path/path.dart';
+import 'package:rancho_consciente/app/model/categoria_model.dart';
+import 'package:rancho_consciente/app/model/rancho_model.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DatabaseHelper {
@@ -74,5 +76,44 @@ class DatabaseHelper {
         FOREIGN KEY (categoriaId) REFERENCES categorias (id) ON DELETE CASCADE
       )
     ''');
+  }
+
+  //FUNÇÕES PRA INSERÇÃO DE DADOS
+
+  //INSERIR RANCHO
+  // Insere um novo Rancho e retorna o ID gerado pelo banco
+  Future<int> insertRancho(RanchoModel rancho) async {
+    final db = await instance.database; // Abre a conexão
+
+    // O 'insert' traduz o objeto para SQL automaticamente usando o toMap
+    return await db.insert('ranchos', rancho.toMap());
+  }
+
+  //INSERIR CATEGORIAS PADRÃO
+  // Insere uma categoria ligada a um Rancho específico
+  Future<int> insertCategoria(CategoriaModel categoria, int ranchoId) async {
+    final db = await instance.database;
+
+    // Criamos o mapa da categoria
+    final map = categoria.toMap();
+
+    // Adicionamos manualmente a chave estrangeira para o banco saber a quem ela pertence
+    map['ranchoId'] = ranchoId;
+
+    return await db.insert('categorias', map);
+  }
+
+  //CRIA UM RANCHO COM AS CAT. PADRÃO JÁ INCLUSAS
+  Future<void> criarNovoRanchoComCategorias(RanchoModel novoRancho) async {
+    // 1. Salva o Rancho e pega o ID dele
+    final idDoRancho = await insertRancho(novoRancho);
+
+    // 2. Pega a lista de categorias padrão que você criou no Model
+    final categoriasPadrao = CategoriaModel.gerarCategoriasPadrao();
+
+    // 3. Salva cada categoria ligando-a ao ID do rancho
+    for (var categoria in categoriasPadrao) {
+      await insertCategoria(categoria, idDoRancho);
+    }
   }
 }
