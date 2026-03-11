@@ -206,4 +206,23 @@ class DatabaseHelper {
     final db = await instance.database;
     return await db.delete('itens', where: 'id = ?', whereArgs: [id]);
   }
+
+  Future<int> deleteRancho(int id) async {
+    final db = await instance.database;
+    return await db.delete('ranchos', where: 'id = ?', whereArgs: [id]);
+  }
+
+  // INSERIR ITEM
+  Future<int> insertItem(ItemModel item, int categoriaId) async {
+    final db = await instance.database;
+
+    final map = item.toMap();
+
+    // Injeta o ID da categoria pai no mapa antes de salvar
+    // Isso garante que o banco saiba a qual categoria esse item pertence
+    map['categoriaId'] = categoriaId;
+
+    // 4. Executa o comando de inserção na tabela 'itens'
+    return await db.insert('itens', map);
+  }
 }
