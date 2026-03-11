@@ -116,4 +116,16 @@ class DatabaseHelper {
       await insertCategoria(categoria, idDoRancho);
     }
   }
+
+  // BUSCA OS RANCHOS JÁ SALVOS NO BANCO
+  Future<List<RanchoModel>> getAllRanchos() async {
+    // 1. Obtém a instância do banco de dados
+    final db = await instance.database;
+
+    // 2. Faz a query na tabela 'ranchos'
+    final result = await db.query('ranchos');
+
+    // 3. Converte a lista de Mapas para uma lista de Objetos RanchoModel
+    return result.map((json) => RanchoModel.fromMap(json)).toList();
+  }
 }
