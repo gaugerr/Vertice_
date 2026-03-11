@@ -39,6 +39,9 @@ class DatabaseHelper {
       version: 1,
       onCreate:
           _createDB, // Indica qual função criará as tabelas na primeira vez
+      onConfigure: (db) async {
+        await db.execute('PRAGMA foreign_keys = ON');
+      },
     );
   }
 
@@ -140,8 +143,9 @@ class DatabaseHelper {
       'ranchos',
       columns: [
         'id',
-        'nome',
-        'dataCriacao',
+        'mercado',
+        'data',
+        'descricao',
       ], // Especifica as colunas por segurança
       where: 'id = ?', // O '?' previne SQL Injection
       whereArgs: [id], // O valor que substituirá o '?'
@@ -179,7 +183,7 @@ class DatabaseHelper {
       'itens',
       where: 'categoriaId = ?',
       whereArgs: [categoriaId],
-      orderBy: 'comprado ASC, id ASC',
+      orderBy: 'isComprado ASC, id ASC',
     );
 
     // 3. Converte os mapas vindos do banco para objetos Dart
