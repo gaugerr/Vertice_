@@ -4,7 +4,12 @@ import 'package:rancho_consciente/app/view_model/rancho_viewmodel.dart';
 
 class AddRanchoForms extends StatefulWidget {
   final RanchoViewModel viewModel;
-  const AddRanchoForms({super.key, required this.viewModel});
+  final VoidCallback onSave;
+  const AddRanchoForms({
+    super.key,
+    required this.viewModel,
+    required this.onSave,
+  });
 
   @override
   State<AddRanchoForms> createState() => _AddRanchoFormsState();
@@ -128,7 +133,8 @@ class _AddRanchoFormsState extends State<AddRanchoForms> {
                       data: AppUtils.converterData(_dateController.text),
                       descricao: _descriptionController.text.trim(),
                     );
-
+                    //funcao callback que chama atualizarLista em app.dart
+                    widget.onSave();
                     Navigator.pop(context);
                   } else {
                     // Se caiu aqui, o Flutter automaticamente mostra os erros em vermelho
