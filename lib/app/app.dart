@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:rancho_consciente/app/helpers/database_helper.dart';
+import 'package:rancho_consciente/app/model/rancho_model.dart';
 import 'package:rancho_consciente/app/view/add_rancho_forms.dart';
 import 'package:rancho_consciente/app/view_model/rancho_viewmodel.dart';
 import 'package:rancho_consciente/app/widgets/bottom_sheet.dart';
@@ -30,15 +32,32 @@ class App extends StatelessWidget {
           /*TO DO implementar um future builder, que vai receber a função 
           gettAllRanchos da database */
 
-          return MyGridBuilder(
-            colunas: 2,
-            itemCount: ranchoViewModel.listasCompras.length,
-            itemBuilder: (context, index) {
-              final rancho = ranchoViewModel.listasCompras[index];
-              return RanchoCard(
-                ranchoViewModel: ranchoViewModel,
-                rancho: rancho,
-              );
+          return FutureBuilder<List<RanchoModel>>(
+            future: DatabaseHelper.instance.getAllRanchos(),
+            builder: (context, asyncSnapshot) {
+              if (asyncSnapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              } else if (asyncSnapshot.hasError) {
+                return Center(
+                  child: Text('Erro de conexão com o banco de dados'),
+                );
+              } else {
+                (asyncSnapshot.hasData);
+                if (asyncSnapshot.data!.isEmpty) {
+                  return Center(child: Text('Nenhum rancho criado ainda!'));
+                }
+                return MyGridBuilder(
+                  colunas: 2,
+                  itemCount: asyncSnapshot.data!.length,
+                  itemBuilder: (context, index) {
+                    final rancho = asyncSnapshot.data![index];
+                    return RanchoCard(
+                      ranchoViewModel: ranchoViewModel,
+                      rancho: rancho,
+                    );
+                  },
+                );
+              }
             },
           );
         },
