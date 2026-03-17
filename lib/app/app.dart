@@ -64,7 +64,9 @@ class _AppState extends State<App> {
                 );
               } else {
                 if (asyncSnapshot.data!.isEmpty) {
-                  return Center(child: Text('Nenhum rancho criado ainda!'));
+                  return Center(
+                    child: Text('Nenhuma lista de compras criada!'),
+                  );
                 }
                 return MyGridBuilder(
                   colunas: 2,
