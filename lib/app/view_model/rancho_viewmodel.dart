@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rancho_consciente/app/helpers/database_helper.dart';
 import 'package:rancho_consciente/app/model/categoria_model.dart';
 import 'package:rancho_consciente/app/model/item_model.dart';
 import 'package:rancho_consciente/app/model/rancho_model.dart';
@@ -6,20 +7,22 @@ import 'package:rancho_consciente/app/model/rancho_model.dart';
 class RanchoViewModel extends ChangeNotifier {
   final List<RanchoModel> listasCompras = [];
 
-  void adicionarRancho({
+  Future<void> adicionarRancho({
     required String nomeMercado,
     required DateTime data,
     required String descricao,
-  }) {
-    listasCompras.add(
+  }) async {
+    await DatabaseHelper.instance.criarNovoRanchoComCategorias(
       RanchoModel(
-        id: DateTime.now().millisecondsSinceEpoch,
+        id: null, //gerado automaticamente pelo autoincrement do sql
         mercado: nomeMercado,
         data: data,
-        categorias: CategoriaModel.gerarCategoriasPadrao(),
+        categorias:
+            [], //gerado automaticamente, databaseHelper relaciona cada cat. com o id do rancho
         descricao: descricao,
       ),
     );
+
     notifyListeners();
   }
 
