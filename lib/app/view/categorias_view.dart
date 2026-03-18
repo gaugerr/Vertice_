@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:rancho_consciente/app/helpers/database_helper.dart';
+import 'package:rancho_consciente/app/model/categoria_model.dart';
 import 'package:rancho_consciente/app/model/rancho_model.dart';
 import 'package:rancho_consciente/app/view_model/rancho_viewmodel.dart';
 import 'package:rancho_consciente/app/widgets/cards/categorias_card.dart';
 import 'package:rancho_consciente/app/widgets/grid_builder.dart';
 
-class CategoriasView extends StatelessWidget {
+class CategoriasView extends StatefulWidget {
   final RanchoViewModel ranchoViewModel;
   final RanchoModel ranchoModel;
   const CategoriasView({
@@ -14,16 +16,34 @@ class CategoriasView extends StatelessWidget {
   });
 
   @override
+  State<CategoriasView> createState() => _CategoriasViewState();
+}
+
+class _CategoriasViewState extends State<CategoriasView> {
+  Future<List<CategoriaModel>>? _categoriasFuture;
+
+  @override
+  void initState() {
+    _categoriasFuture = DatabaseHelper.instance.getCategoriasPorRancho(
+      widget.ranchoModel.id!,
+    );
+
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         //centerTitle: true,
-        title: Text(ranchoModel.mercado),
+        title: Text(widget.ranchoModel.mercado),
         actions: [
           ListenableBuilder(
-            listenable: ranchoViewModel,
+            listenable: widget.ranchoViewModel,
             builder: (context, _) {
-              final total = ranchoViewModel.calcularTotalRancho(ranchoModel);
+              final total = widget.ranchoViewModel.calcularTotalRancho(
+                widget.ranchoModel,
+              );
 
               return Padding(
                 padding: const EdgeInsets.only(right: 30),
@@ -56,15 +76,32 @@ class CategoriasView extends StatelessWidget {
         ],
       ),
 
-      body: MyGridBuilder(
-        colunas: 2,
-        itemCount: ranchoModel.categorias.length,
-        itemBuilder: (context, index) {
-          final categorias = ranchoModel.categorias[index];
-          return CategoriasCard(
-            ranchoViewModel: ranchoViewModel,
-            categorias: categorias,
-          );
+      body: FutureBuilder<List<CategoriaModel>>(
+        future: _categoriasFuture,
+
+        builder: (context, asyncSnapshot) {
+          if (asyncSnapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (asyncSnapshot.hasError) {
+            return Center(child: Text('Erro de conexão com o banco de dados'));
+          } else {
+            if (asyncSnapshot.data!.isEmpty) {
+              return Center(
+                child: Text('Nenhuma categoria de compras encontrada'),
+              );
+            }
+            return MyGridBuilder(
+              colunas: 2,
+              itemCount: asyncSnapshot.data!.length,
+              itemBuilder: (context, index) {
+                final categorias = asyncSnapshot.data![index];
+                return CategoriasCard(
+                  ranchoViewModel: widget.ranchoViewModel,
+                  categorias: categorias,
+                );
+              },
+            );
+          }
         },
       ),
     );
