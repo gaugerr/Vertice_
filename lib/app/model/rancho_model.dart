@@ -19,13 +19,6 @@ class RanchoModel {
     this.categorias = const [],
   });
 
-  double get valorTotalCompra {
-    return categorias.fold(
-      0.0,
-      (total, categoria) => total + categoria.totalCategoria,
-    );
-  }
-
   RanchoModel copyWith({
     ValueGetter<int?>? id,
     String? mercado,

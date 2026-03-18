@@ -5,7 +5,7 @@ import 'package:rancho_consciente/app/model/item_model.dart';
 import 'package:rancho_consciente/app/model/rancho_model.dart';
 
 class RanchoViewModel extends ChangeNotifier {
-  final List<RanchoModel> listasCompras = [];
+  final Map<int, List<ItemModel>> _itensAgrupados = {};
 
   Future<void> adicionarRancho({
     required String nomeMercado,
@@ -37,12 +37,26 @@ class RanchoViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  List<ItemModel> getItensDaCategoria(int categoriaId) {
+    return _itensAgrupados[categoriaId] ?? [];
+  }
+
+  void atualizarItensNaMemoria(List<ItemModel> todosOsItens) {
+    _itensAgrupados.clear();
+    for (var item in todosOsItens) {
+      _itensAgrupados.putIfAbsent(item.categoriaId!, () => []).add(item);
+    }
+    notifyListeners();
+  }
+
   List<String> getListaItens(CategoriaModel categoria) {
-    return categoria.itens.map((item) => item.nomeItem).toList();
+    final itens = getItensDaCategoria(categoria.id!);
+
+    return itens.map((item) => item.nomeItem).toList();
   }
 
   bool isCategoriaCompleta(CategoriaModel categoria) {
-    final itens = categoria.itens;
+    final itens = getItensDaCategoria(categoria.id!);
     if (itens.isEmpty) return false;
     return itens.every((item) => item.isComprado == true);
   }
@@ -53,7 +67,8 @@ class RanchoViewModel extends ChangeNotifier {
   }
 
   double calcularTotalCategoria(CategoriaModel categoria) {
-    double totalCategoria = categoria.itens
+    final itens = getItensDaCategoria(categoria.id!);
+    double totalCategoria = itens
         .where((item) => item.isComprado)
         .fold(0.0, (soma, item) => soma + calcularTotalItem(item));
 

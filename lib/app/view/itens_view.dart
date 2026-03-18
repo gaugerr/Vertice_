@@ -110,16 +110,21 @@ class _ItensViewState extends State<ItensView> {
             Expanded(
               child: ListenableBuilder(
                 listenable: widget.ranchoViewModel,
-                builder: (context, child) => MyListViewBuilder(
-                  itemCount: widget.categoriaModel.itens.length,
-                  itemBuilder: (context, index) {
-                    final itemAtual = widget.categoriaModel.itens[index];
-                    return ItemCard(
-                      ranchoViewModel: widget.ranchoViewModel,
-                      itemModel: itemAtual,
-                    );
-                  },
-                ),
+                builder: (context, child) {
+                  final listaItens = widget.ranchoViewModel.getItensDaCategoria(
+                    widget.categoriaModel.id!,
+                  );
+                  return MyListViewBuilder(
+                    itemCount: listaItens.length,
+                    itemBuilder: (context, index) {
+                      final itemAtual = listaItens[index];
+                      return ItemCard(
+                        ranchoViewModel: widget.ranchoViewModel,
+                        itemModel: itemAtual,
+                      );
+                    },
+                  );
+                },
               ),
             ),
           ],
