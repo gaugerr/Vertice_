@@ -190,6 +190,20 @@ class DatabaseHelper {
     return result.map((json) => ItemModel.fromMap(json)).toList();
   }
 
+  Future<List<ItemModel>> getItensPorRancho(int ranchoId) async {
+    final db = await instance.database;
+
+    // 1. Fazemos a busca filtrando pelo ID do Rancho
+    final result = await db.query(
+      'itens', // Nome da sua tabela
+      where: 'ranchoId = ?',
+      whereArgs: [ranchoId],
+    );
+
+    // 2. Transformamos a lista de Maps (JSON) em uma lista de ItemModel
+    return result.map((json) => ItemModel.fromMap(json)).toList();
+  }
+
   // ATUALIZA O ITEM INTEIRO
   Future<int> updateItem(ItemModel item) async {
     final db = await instance.database;
