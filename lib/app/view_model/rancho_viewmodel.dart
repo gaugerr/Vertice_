@@ -26,13 +26,45 @@ class RanchoViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void adicionarItem({required categoria, required nomeDigitado}) {
-    final novoItem = ItemModel(
-      id: DateTime.now().millisecondsSinceEpoch,
+  Future<void> adicionarItem({
+    required categoria,
+    required nomeDigitado,
+  }) async {
+    final itemByName = ItemModel(
       nomeItem: nomeDigitado,
+      categoriaId: categoria.id,
     );
 
-    categoria.itens.add(novoItem);
+    final idGerado = await DatabaseHelper.instance.insertItem(
+      itemByName,
+      categoria.id,
+    );
+
+    final itemComId = itemByName.copyWith(id: idGerado);
+
+    if (!_itensAgrupados.containsKey(itemComId.categoriaId)) {
+      _itensAgrupados[itemComId.categoriaId!] = [];
+    }
+
+    _itensAgrupados[itemComId.categoriaId]!.add(itemComId);
+    notifyListeners();
+  }
+
+  Future<void> inicializarItensDoRancho(int ranchoId) async {
+    final List<ItemModel> listaDoBanco = await DatabaseHelper.instance
+        .getItensPorRancho(ranchoId);
+
+    _itensAgrupados.clear();
+
+    for (var item in listaDoBanco) {
+      final idCat = item.categoriaId;
+
+      if (!_itensAgrupados.containsKey(idCat)) {
+        _itensAgrupados[idCat!] = [];
+      }
+
+      _itensAgrupados[idCat]!.add(item);
+    }
 
     notifyListeners();
   }

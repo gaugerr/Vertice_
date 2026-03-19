@@ -24,11 +24,11 @@ class _CategoriasViewState extends State<CategoriasView> {
 
   @override
   void initState() {
+    super.initState();
     _categoriasFuture = DatabaseHelper.instance.getCategoriasPorRancho(
       widget.ranchoModel.id!,
     );
-
-    super.initState();
+    widget.ranchoViewModel.inicializarItensDoRancho(widget.ranchoModel.id!);
   }
 
   @override

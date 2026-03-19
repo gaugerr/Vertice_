@@ -22,7 +22,7 @@ class ItemModel {
   });
 
   ItemModel copyWith({
-    ValueGetter<int?>? id,
+    int? id,
     String? nomeItem,
     double? preco,
     double? quantidade,
@@ -31,7 +31,7 @@ class ItemModel {
     ValueGetter<int?>? categoriaId,
   }) {
     return ItemModel(
-      id: id != null ? id() : this.id,
+      id: id ?? this.id,
       nomeItem: nomeItem ?? this.nomeItem,
       preco: preco ?? this.preco,
       quantidade: quantidade ?? this.quantidade,
