@@ -203,9 +203,7 @@ class DatabaseHelper {
     );
 
     // 2. Transformamos a lista de Maps (JSON) em uma lista de ItemModel
-    print(
-      '🔎 BUSCA NO BANCO: Encontrei ${result.length} itens para o rancho $ranchoId',
-    );
+
     return result.map((json) => ItemModel.fromMap(json)).toList();
   }
 
@@ -243,7 +241,7 @@ class DatabaseHelper {
 
     // 4. Executa o comando de inserção na tabela 'itens'
     final id = await db.insert('itens', map);
-    print('✅ ITEM SALVO NO BANCO COM ID: $id'); // Adicione isso!
+
     return id;
   }
 }
