@@ -1,13 +1,14 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
-
 class CategoriaModel {
   int? id;
+  int? ranchoId; // O elo com o Rancho
   String tituloCategoria;
 
-  CategoriaModel({this.id, required this.tituloCategoria});
+  CategoriaModel({this.id, this.ranchoId, required this.tituloCategoria});
 
+  // Nota: Aqui as categorias nascem sem ranchoId, você deve atribuir
+  // o ID do rancho atual antes de salvar no banco.
   static List<CategoriaModel> gerarCategoriasPadrao() {
     return [
       CategoriaModel(tituloCategoria: 'Essenciais'),
@@ -19,20 +20,27 @@ class CategoriaModel {
     ];
   }
 
-  CategoriaModel copyWith({ValueGetter<int?>? id, String? tituloCategoria}) {
+  // Simplificado para aceitar int? direto, como fizemos na ItemModel
+  CategoriaModel copyWith({int? id, int? ranchoId, String? tituloCategoria}) {
     return CategoriaModel(
-      id: id != null ? id() : this.id,
+      id: id ?? this.id,
+      ranchoId: ranchoId ?? this.ranchoId,
       tituloCategoria: tituloCategoria ?? this.tituloCategoria,
     );
   }
 
   Map<String, dynamic> toMap() {
-    return {'id': id, 'tituloCategoria': tituloCategoria};
+    return {
+      'id': id,
+      'ranchoId': ranchoId, // Injetado
+      'tituloCategoria': tituloCategoria,
+    };
   }
 
   factory CategoriaModel.fromMap(Map<String, dynamic> map) {
     return CategoriaModel(
       id: map['id']?.toInt(),
+      ranchoId: map['ranchoId']?.toInt(), // Injetado
       tituloCategoria: map['tituloCategoria'] ?? '',
     );
   }
@@ -44,7 +52,7 @@ class CategoriaModel {
 
   @override
   String toString() =>
-      'CategoriaModel(id: $id, tituloCategoria: $tituloCategoria)';
+      'CategoriaModel(id: $id, ranchoId: $ranchoId, tituloCategoria: $tituloCategoria)';
 
   @override
   bool operator ==(Object other) {
@@ -52,9 +60,11 @@ class CategoriaModel {
 
     return other is CategoriaModel &&
         other.id == id &&
+        other.ranchoId == ranchoId && // Comparação injetada
         other.tituloCategoria == tituloCategoria;
   }
 
   @override
-  int get hashCode => id.hashCode ^ tituloCategoria.hashCode;
+  int get hashCode =>
+      id.hashCode ^ ranchoId.hashCode ^ tituloCategoria.hashCode;
 }

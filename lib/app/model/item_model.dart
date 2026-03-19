@@ -9,7 +9,8 @@ class ItemModel {
   double quantidade;
   String unidade;
   bool isComprado;
-  int? categoriaId; //futura chave pra ligar a categoria pertencente
+  int? categoriaId;
+  int? ranchoId; //futura chave pra ligar a categoria pertencente
 
   ItemModel({
     this.id,
@@ -19,6 +20,7 @@ class ItemModel {
     this.unidade = 'un',
     this.isComprado = false,
     this.categoriaId,
+    this.ranchoId,
   });
 
   ItemModel copyWith({
@@ -29,6 +31,7 @@ class ItemModel {
     String? unidade,
     bool? isComprado,
     ValueGetter<int?>? categoriaId,
+    ValueGetter<int?>? ranchoId,
   }) {
     return ItemModel(
       id: id ?? this.id,
@@ -38,6 +41,7 @@ class ItemModel {
       unidade: unidade ?? this.unidade,
       isComprado: isComprado ?? this.isComprado,
       categoriaId: categoriaId != null ? categoriaId() : this.categoriaId,
+      ranchoId: ranchoId != null ? ranchoId() : this.ranchoId,
     );
   }
 
@@ -50,6 +54,7 @@ class ItemModel {
       'unidade': unidade,
       'isComprado': isComprado ? 1 : 0,
       'categoriaId': categoriaId,
+      'ranchoId': ranchoId,
     };
   }
 
@@ -62,6 +67,7 @@ class ItemModel {
       unidade: map['unidade'] ?? '',
       isComprado: map['isComprado'] == 1,
       categoriaId: map['categoriaId']?.toInt(),
+      ranchoId: map['ranchoId']?.toInt(),
     );
   }
 
@@ -72,7 +78,7 @@ class ItemModel {
 
   @override
   String toString() {
-    return 'ItemModel(id: $id, nomeItem: $nomeItem, preco: $preco, quantidade: $quantidade, unidade: $unidade, isComprado: $isComprado, categoriaId: $categoriaId)';
+    return 'ItemModel(id: $id, nomeItem: $nomeItem, preco: $preco, quantidade: $quantidade, unidade: $unidade, isComprado: $isComprado, categoriaId: $categoriaId, ranchoId: $ranchoId)';
   }
 
   @override
@@ -86,7 +92,8 @@ class ItemModel {
         other.quantidade == quantidade &&
         other.unidade == unidade &&
         other.isComprado == isComprado &&
-        other.categoriaId == categoriaId;
+        other.categoriaId == categoriaId &&
+        other.ranchoId == ranchoId;
   }
 
   @override
@@ -97,6 +104,7 @@ class ItemModel {
         quantidade.hashCode ^
         unidade.hashCode ^
         isComprado.hashCode ^
-        categoriaId.hashCode;
+        categoriaId.hashCode ^
+        ranchoId.hashCode;
   }
 }

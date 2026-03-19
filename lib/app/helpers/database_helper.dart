@@ -77,6 +77,8 @@ class DatabaseHelper {
         unidade TEXT NOT NULL,
         isComprado INTEGER NOT NULL,
         categoriaId INTEGER,
+        ranchoId INTEGER,
+        FOREIGN KEY (ranchoId) REFERENCES ranchos (id) ON DELETE CASCADE,
         FOREIGN KEY (categoriaId) REFERENCES categorias (id) ON DELETE CASCADE
       )
     ''');
@@ -201,6 +203,9 @@ class DatabaseHelper {
     );
 
     // 2. Transformamos a lista de Maps (JSON) em uma lista de ItemModel
+    print(
+      '🔎 BUSCA NO BANCO: Encontrei ${result.length} itens para o rancho $ranchoId',
+    );
     return result.map((json) => ItemModel.fromMap(json)).toList();
   }
 
@@ -237,6 +242,8 @@ class DatabaseHelper {
     map['categoriaId'] = categoriaId;
 
     // 4. Executa o comando de inserção na tabela 'itens'
-    return await db.insert('itens', map);
+    final id = await db.insert('itens', map);
+    print('✅ ITEM SALVO NO BANCO COM ID: $id'); // Adicione isso!
+    return id;
   }
 }

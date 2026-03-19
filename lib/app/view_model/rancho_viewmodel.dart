@@ -32,7 +32,8 @@ class RanchoViewModel extends ChangeNotifier {
   }) async {
     final itemByName = ItemModel(
       nomeItem: nomeDigitado,
-      categoriaId: categoria.id,
+      categoriaId: categoria.id!,
+      ranchoId: categoria.ranchoId,
     );
 
     final idGerado = await DatabaseHelper.instance.insertItem(
