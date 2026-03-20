@@ -62,8 +62,11 @@ class _ItemCardState extends State<ItemCard> {
                 Checkbox(
                   visualDensity: VisualDensity.compact,
                   value: widget.itemModel.isComprado,
-                  onChanged: (bool? value) => {
-                    widget.ranchoViewModel.toggleIsComprado(widget.itemModel),
+                  onChanged: (bool? value) {
+                    final novoItem = widget.itemModel.copyWith(
+                      isComprado: !widget.itemModel.isComprado,
+                    );
+                    widget.ranchoViewModel.updateItem(novoItem);
                   },
                 ),
                 SizedBox(width: 10),
@@ -112,10 +115,11 @@ class _ItemCardState extends State<ItemCard> {
                         }).toList(),
                         onChanged: (value) {
                           if (value != null && value.isNotEmpty) {
-                            widget.ranchoViewModel.atualizarUnidadeItem(
-                              widget.itemModel,
-                              value,
+                            final novoItem = widget.itemModel.copyWith(
+                              unidade: value,
                             );
+
+                            widget.ranchoViewModel.updateItem(novoItem);
                           }
                         },
                       ),
@@ -147,10 +151,12 @@ class _ItemCardState extends State<ItemCard> {
                           final novaQtd =
                               double.tryParse(value.replaceAll(',', '.')) ??
                               0.0;
-                          widget.ranchoViewModel.atualizarQtdItem(
-                            widget.itemModel,
-                            novaQtd,
+
+                          final novoItem = widget.itemModel.copyWith(
+                            quantidade: novaQtd,
                           );
+
+                          widget.ranchoViewModel.updateItem(novoItem);
                         },
                       ),
                     ),
@@ -181,14 +187,16 @@ class _ItemCardState extends State<ItemCard> {
                             extentOffset: _precoController.text.length,
                           );
                         },
-                        onChanged: (value) {
+
+                        onFieldSubmitted: (value) {
                           final novoPreco =
                               double.tryParse(value.replaceAll(',', '.')) ??
                               0.0;
-                          widget.ranchoViewModel.atualizarPrecoItem(
-                            widget.itemModel,
-                            novoPreco,
+
+                          final novoItem = widget.itemModel.copyWith(
+                            preco: novoPreco,
                           );
+                          widget.ranchoViewModel.updateItem(novoItem);
                         },
                       ),
                     ),
