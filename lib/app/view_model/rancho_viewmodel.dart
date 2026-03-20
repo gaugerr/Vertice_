@@ -109,11 +109,18 @@ class RanchoViewModel extends ChangeNotifier {
   }
 
   double calcularTotalRancho(RanchoModel rancho) {
-    return rancho.categorias.fold(
-      0.0,
-      (totalAcumulado, categoria) =>
-          totalAcumulado + calcularTotalCategoria(categoria),
-    );
+    double total = 0.0;
+    // Percorre cada "balde" (lista de itens) dentro do Mapa
+    for (var listaDeItens in _itensAgrupados.values) {
+      for (var item in listaDeItens) {
+        if (item.isComprado) {
+          // Soma: Preço * Quantidade
+          total += (item.preco * item.quantidade);
+        }
+      }
+    }
+
+    return total;
   }
 
   double calcularTotalItem(ItemModel item) {
@@ -137,5 +144,24 @@ class RanchoViewModel extends ChangeNotifier {
   void atualizarUnidadeItem(ItemModel item, String novaUnidade) {
     item.unidade = novaUnidade;
     notifyListeners();
+  }
+
+  //função de updateItem completa, atualiza na memória (usuário vê a mudança instantâneamente) e depois atualiza no banco de dados em segundo plano
+  Future<void> updateItem(ItemModel itemNovo) async {
+    //atualiza na memória
+    final lista = _itensAgrupados[itemNovo.categoriaId];
+    if (lista != null) {
+      final index = lista.indexWhere((i) => i.id == itemNovo.id);
+      if (index != -1) {
+        lista[index] = itemNovo;
+      }
+    }
+
+    notifyListeners();
+    try {
+      await DatabaseHelper.instance.updateItem(itemNovo);
+    } catch (e) {
+      //todo implementar snack bar de erro e reverter ao item original
+    }
   }
 }
