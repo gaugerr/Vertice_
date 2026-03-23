@@ -81,12 +81,36 @@ class _ItemCardState extends State<ItemCard> {
                   ),
                 ),
                 Spacer(),
+
+                // Spacer(),
                 if (widget.itemModel.isComprado) ...[
                   Text(
                     'Total: R\$ ${widget.ranchoViewModel.calcularTotalItem(widget.itemModel).toStringAsFixed(2)}',
                   ),
                   SizedBox(width: 10),
                 ],
+                PopupMenuButton<int>(
+                  icon: const Icon(Icons.more_vert),
+
+                  onSelected: (value) {
+                    if (value == 1) {
+                      //logica se for 1
+                    } else if (value == 2) {
+                      //logica se for 2
+                    }
+                  },
+
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(value: 2, child: Text('Renomear')),
+                    const PopupMenuItem(
+                      value: 1,
+                      child: Text(
+                        'Excluir',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
 
