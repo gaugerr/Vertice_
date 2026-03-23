@@ -94,11 +94,6 @@ class RanchoViewModel extends ChangeNotifier {
     return itens.every((item) => item.isComprado == true);
   }
 
-  void toggleIsComprado(ItemModel item) {
-    item.isComprado = !item.isComprado;
-    notifyListeners();
-  }
-
   double calcularTotalCategoria(CategoriaModel categoria) {
     final itens = getItensDaCategoria(categoria.id!);
     double totalCategoria = itens
@@ -129,21 +124,6 @@ class RanchoViewModel extends ChangeNotifier {
     } else {
       return item.preco;
     }
-  }
-
-  void atualizarPrecoItem(ItemModel item, double novoPreco) {
-    item.preco = novoPreco;
-    notifyListeners();
-  }
-
-  void atualizarQtdItem(ItemModel item, double novaQtd) {
-    item.quantidade = novaQtd;
-    notifyListeners();
-  }
-
-  void atualizarUnidadeItem(ItemModel item, String novaUnidade) {
-    item.unidade = novaUnidade;
-    notifyListeners();
   }
 
   //função de updateItem completa, atualiza na memória (usuário vê a mudança instantâneamente) e depois atualiza no banco de dados em segundo plano
