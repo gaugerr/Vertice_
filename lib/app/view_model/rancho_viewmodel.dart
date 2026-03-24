@@ -144,4 +144,22 @@ class RanchoViewModel extends ChangeNotifier {
       //todo implementar snack bar de erro e reverter ao item original
     }
   }
+
+  Future<void> deleteItem(ItemModel item) async {
+    //posição original do item
+    final lista = _itensAgrupados[item.categoriaId];
+    if (lista == null) return;
+
+    final indexOriginal = lista.indexWhere((i) => i.id == item.id);
+
+    //remove da tela NA HORA
+    lista.removeAt(indexOriginal);
+    notifyListeners();
+
+    try {
+      await DatabaseHelper.instance.deleteItem(item.id!);
+    } catch (e) {
+      //
+    }
+  }
 }
