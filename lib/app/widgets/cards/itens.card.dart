@@ -20,6 +20,7 @@ class _ItemCardState extends State<ItemCard> {
 
   final TextEditingController _qtdController = TextEditingController();
   final TextEditingController _precoController = TextEditingController();
+  final TextEditingController _renamedItem = TextEditingController();
 
   // Variável para controlar o estado de carregamento/processamento do botão
   //final bool _isProcessing = false;
@@ -39,6 +40,7 @@ class _ItemCardState extends State<ItemCard> {
 
     _qtdController.text = widget.itemModel.quantidade.toString();
     _precoController.text = widget.itemModel.preco.toStringAsFixed(2);
+    _renamedItem.text = widget.itemModel.nomeItem.toString();
   }
 
   @override
@@ -46,6 +48,7 @@ class _ItemCardState extends State<ItemCard> {
     _qtdController.dispose();
     _precoController.dispose();
     _precoFocusNode.dispose();
+    _renamedItem.dispose();
     super.dispose();
   }
 
@@ -134,7 +137,68 @@ class _ItemCardState extends State<ItemCard> {
                         },
                       );
                     } else if (value == 2) {
-                      //logica se for 2 // renomear
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text(
+                              "Renomear Item",
+                              textAlign: TextAlign.center,
+                            ),
+                            content: TextFormField(
+                              autofocus: true,
+
+                              autovalidateMode:
+                                  AutovalidateMode.onUserInteraction,
+
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Por favor, digite o nome do item';
+                                } else if (value.length > 50) {
+                                  return 'A descrição pode exceder 50 caracteres';
+                                }
+                                return null;
+                              },
+                              controller: _renamedItem,
+                              decoration: InputDecoration(
+                                hint: Text(
+                                  _renamedItem.text,
+                                  style: TextStyle(color: Colors.white38),
+                                ),
+                              ),
+                              onTap: () {
+                                _renamedItem.selection = TextSelection(
+                                  baseOffset: 0,
+                                  extentOffset: _renamedItem.text.length,
+                                );
+                              },
+                            ),
+                            actionsAlignment: MainAxisAlignment.spaceEvenly,
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(
+                                  context,
+                                ), // Fecha sem fazer nada
+                                child: const Text("Cancelar"),
+                              ),
+                              TextButton(
+                                onPressed: () async {
+                                  // 1. Fecha o Dialog primeiro
+                                  Navigator.pop(context);
+                                  final itemNovo = widget.itemModel.copyWith(
+                                    nomeItem: _renamedItem.text,
+                                  );
+                                  widget.ranchoViewModel.updateItem(itemNovo);
+                                },
+                                child: const Text(
+                                  "Salvar",
+                                  style: TextStyle(color: Colors.green),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      );
                     }
                   },
 
