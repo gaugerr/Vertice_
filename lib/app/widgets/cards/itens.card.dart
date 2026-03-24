@@ -92,11 +92,49 @@ class _ItemCardState extends State<ItemCard> {
                 PopupMenuButton<int>(
                   icon: const Icon(Icons.more_vert),
 
-                  onSelected: (value) {
+                  onSelected: (value) async {
                     if (value == 1) {
-                      //logica se for 1
+                      // Mostra o alerta de confirmação
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text(
+                              "Excluir Item?",
+                              textAlign: TextAlign.center,
+                            ),
+                            content: Text(
+                              "Deseja realmente remover '${widget.itemModel.nomeItem}' da lista?",
+                            ),
+                            actionsAlignment: MainAxisAlignment.spaceEvenly,
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(
+                                  context,
+                                ), // Fecha sem fazer nada
+                                child: const Text("CANCELAR"),
+                              ),
+                              TextButton(
+                                onPressed: () async {
+                                  // 1. Fecha o Dialog primeiro
+                                  Navigator.pop(context);
+
+                                  // 2. Deleta da memória(instantânea) e depois do banco
+                                  await widget.ranchoViewModel.deleteItem(
+                                    widget.itemModel,
+                                  );
+                                },
+                                child: const Text(
+                                  "EXCLUIR",
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      );
                     } else if (value == 2) {
-                      //logica se for 2
+                      //logica se for 2 // renomear
                     }
                   },
 
