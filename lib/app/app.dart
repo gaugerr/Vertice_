@@ -36,7 +36,7 @@ class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(centerTitle: true, title: Text('Rancho Consciente')),
+      appBar: AppBar(centerTitle: true, title: Text('Vértice')),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           ShowBottomSheet.bottomSheet(
