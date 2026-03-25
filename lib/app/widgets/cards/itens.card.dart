@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:rancho_consciente/app/model/item_model.dart';
 import 'package:rancho_consciente/app/view_model/rancho_viewmodel.dart';
+import 'package:rancho_consciente/app/widgets/confirm_action_dialog.dart';
+import 'package:rancho_consciente/app/widgets/popup_menu_button.dart';
+import 'package:rancho_consciente/app/widgets/rename_action_dialog.dart';
 
 class ItemCard extends StatefulWidget {
   final RanchoViewModel ranchoViewModel;
@@ -92,126 +95,49 @@ class _ItemCardState extends State<ItemCard> {
                   ),
                   SizedBox(width: 10),
                 ],
-                PopupMenuButton<int>(
-                  icon: const Icon(Icons.more_vert),
 
-                  onSelected: (value) async {
-                    if (value == 1) {
-                      // Mostra o alerta de confirmação
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: const Text(
-                              "Excluir Item?",
-                              textAlign: TextAlign.center,
-                            ),
-                            content: Text(
-                              "Deseja realmente remover '${widget.itemModel.nomeItem}' da lista?",
-                            ),
-                            actionsAlignment: MainAxisAlignment.spaceEvenly,
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(
-                                  context,
-                                ), // Fecha sem fazer nada
-                                child: const Text("CANCELAR"),
-                              ),
-                              TextButton(
-                                onPressed: () async {
-                                  // 1. Fecha o Dialog primeiro
-                                  Navigator.pop(context);
-
-                                  // 2. Deleta da memória(instantânea) e depois do banco
-                                  await widget.ranchoViewModel.deleteItem(
-                                    widget.itemModel,
-                                  );
-                                },
-                                child: const Text(
-                                  "EXCLUIR",
-                                  style: TextStyle(color: Colors.red),
-                                ),
-                              ),
-                            ],
+                CustomPopupMenuButton(
+                  onExcludePressed: () => showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return ConfirmActionDialog(
+                        title: 'Excluir Item?',
+                        description:
+                            "Deseja realmente remover '${widget.itemModel.nomeItem}' da lista?",
+                        cancelActionLabel: 'CANCELAR',
+                        confirmActionLabel: 'EXCLUIR',
+                        onConfirm: () async {
+                          await widget.ranchoViewModel.deleteItem(
+                            widget.itemModel,
                           );
                         },
+                        confirmColor: Colors.red,
                       );
-                    } else if (value == 2) {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text(
-                              "Renomear Item",
-                              textAlign: TextAlign.center,
-                            ),
-                            content: TextFormField(
-                              autofocus: true,
+                    },
+                  ),
+                  onRenamePressed: () => showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return RenameActionDialog(
+                        renamedController: _renamedItem,
+                        title: 'Renomear Item',
+                        validatorErrorEmpty: 'Por favor, digite o nome do item',
+                        validatorErrorMaximumLength:
+                            'O nome não pode exceder 50 caracteres',
+                        cancelActionLabel: 'CANCELAR',
+                        confirmActionLabel: 'SALVAR',
 
-                              autovalidateMode:
-                                  AutovalidateMode.onUserInteraction,
-
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return 'Por favor, digite o nome do item';
-                                } else if (value.length > 50) {
-                                  return 'A descrição pode exceder 50 caracteres';
-                                }
-                                return null;
-                              },
-                              controller: _renamedItem,
-                              decoration: InputDecoration(
-                                hint: Text(
-                                  _renamedItem.text,
-                                  style: TextStyle(color: Colors.white38),
-                                ),
-                              ),
-                              onTap: () {
-                                _renamedItem.selection = TextSelection(
-                                  baseOffset: 0,
-                                  extentOffset: _renamedItem.text.length,
-                                );
-                              },
-                            ),
-                            actionsAlignment: MainAxisAlignment.spaceEvenly,
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(
-                                  context,
-                                ), // Fecha sem fazer nada
-                                child: const Text("Cancelar"),
-                              ),
-                              TextButton(
-                                onPressed: () async {
-                                  // 1. Fecha o Dialog primeiro
-                                  Navigator.pop(context);
-                                  final itemNovo = widget.itemModel.copyWith(
-                                    nomeItem: _renamedItem.text,
-                                  );
-                                  widget.ranchoViewModel.updateItem(itemNovo);
-                                },
-                                child: const Text(
-                                  "Salvar",
-                                  style: TextStyle(color: Colors.green),
-                                ),
-                              ),
-                            ],
+                        onConfirm: (novoNome) async {
+                          final itemNovo = widget.itemModel.copyWith(
+                            nomeItem: novoNome,
                           );
+                          await widget.ranchoViewModel.updateItem(itemNovo);
                         },
                       );
-                    }
-                  },
-
-                  itemBuilder: (context) => [
-                    const PopupMenuItem(value: 2, child: Text('Renomear')),
-                    const PopupMenuItem(
-                      value: 1,
-                      child: Text(
-                        'Excluir',
-                        style: TextStyle(color: Colors.red),
-                      ),
-                    ),
-                  ],
+                    },
+                  ),
+                  excludeLabel: 'Excluir',
+                  renameLabel: 'Renomear',
                 ),
               ],
             ),
