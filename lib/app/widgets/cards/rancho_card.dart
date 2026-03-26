@@ -33,28 +33,32 @@ class RanchoCard extends StatelessWidget {
           );
         },
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // Text('id = ${rancho.id}'),
               Text(
                 rancho.mercado,
+
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.primary,
                   fontWeight: FontWeight.bold,
+                  fontSize: 16,
                 ),
               ),
+              const SizedBox(height: 10),
+              Text(
+                rancho.descricao,
+                style: const TextStyle(color: Colors.white60, fontSize: 14),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
               Text(
                 //  rancho.data.toString(),
                 "${rancho.data.day.toString().padLeft(2, '0')}/${rancho.data.month.toString().padLeft(2, '0')}/${rancho.data.year}",
-                style: const TextStyle(color: Colors.white70, fontSize: 12),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                rancho.descricao,
-                style: const TextStyle(color: Colors.white, fontSize: 10),
-                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.white24, fontSize: 12),
               ),
             ],
           ),

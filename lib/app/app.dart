@@ -36,17 +36,45 @@ class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(centerTitle: true, title: Text('Vértice')),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          ShowBottomSheet.bottomSheet(
-            context,
-            AddRanchoForms(viewModel: ranchoViewModel, onSave: _atualizarLista),
-          );
-        },
-        label: Text('Criar nova lista de compras'),
-        icon: Icon(Icons.add_shopping_cart_outlined),
+      appBar: AppBar(
+        centerTitle: true,
+        title: Column(
+          children: [
+            Text('VÉRTICE', style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(
+              'O ponto de encontro entre necessidade e gasto',
+              style: TextStyle(color: Colors.white38, fontSize: 14),
+            ),
+          ],
+        ),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Container(
+        width: double.infinity,
+        height: 60,
+        margin: EdgeInsets.symmetric(horizontal: 22),
+        child: FloatingActionButton.extended(
+          onPressed: () {
+            ShowBottomSheet.bottomSheet(
+              context,
+              AddRanchoForms(
+                viewModel: ranchoViewModel,
+                onSave: _atualizarLista,
+              ),
+            );
+          },
+
+          label: Center(
+            child: Text(
+              'Criar nova lista de compras',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+          ),
+
+          icon: Icon(Icons.add_shopping_cart_outlined),
+        ),
+      ),
+
       body: ListenableBuilder(
         listenable: ranchoViewModel,
         builder: (context, child) {
@@ -69,7 +97,7 @@ class _AppState extends State<App> {
                   );
                 }
                 return MyGridBuilder(
-                  colunas: 2,
+                  colunas: 1,
                   itemCount: asyncSnapshot.data!.length,
                   itemBuilder: (context, index) {
                     final rancho = asyncSnapshot.data![index];
