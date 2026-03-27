@@ -110,7 +110,7 @@ class DatabaseHelper {
   }
 
   //CRIA UM RANCHO COM AS CAT. PADRÃO JÁ INCLUSAS
-  Future<void> criarNovoRanchoComCategorias(RanchoModel novoRancho) async {
+  Future<int> criarNovoRanchoComCategorias(RanchoModel novoRancho) async {
     // 1. Salva o Rancho e pega o ID dele
     final idDoRancho = await insertRancho(novoRancho);
 
@@ -121,6 +121,7 @@ class DatabaseHelper {
     for (var categoria in categoriasPadrao) {
       await insertCategoria(categoria, idDoRancho);
     }
+    return idDoRancho;
   }
 
   // BUSCA OS RANCHOS JÁ SALVOS NO BANCO
