@@ -6,24 +6,37 @@ import 'package:rancho_consciente/app/model/rancho_model.dart';
 
 class RanchoViewModel extends ChangeNotifier {
   final Map<int, List<ItemModel>> _itensAgrupados = {};
+  final List<RanchoModel> _shoppingLists = [];
+  List<RanchoModel> get shoppingLists => _shoppingLists;
 
   Future<void> adicionarRancho({
     required String nomeMercado,
     required DateTime data,
     required String descricao,
   }) async {
-    await DatabaseHelper.instance.criarNovoRanchoComCategorias(
-      RanchoModel(
-        id: null, //gerado automaticamente pelo autoincrement do sql
-        mercado: nomeMercado,
-        data: data,
-        categorias:
-            [], //gerado automaticamente, databaseHelper relaciona cada cat. com o id do rancho
-        descricao: descricao,
-      ),
+    final rancho = RanchoModel(
+      id: null, //gerado automaticamente pelo autoincrement do sql
+      mercado: nomeMercado,
+      data: data,
+      categorias:
+          [], //gerado automaticamente, databaseHelper relaciona cada cat. com o id do rancho
+      descricao: descricao,
     );
 
-    notifyListeners();
+    final idGerado = await DatabaseHelper.instance.criarNovoRanchoComCategorias(
+      rancho,
+    );
+
+    final ranchoComId = rancho.copyWith(id: idGerado);
+
+    bool jaExiste = _shoppingLists.any((item) => item.id == idGerado);
+
+    if (!jaExiste) {
+      _shoppingLists.insert(0, ranchoComId);
+      print('RANCHO ADICIONADO NA MEMORIA + $ranchoComId');
+
+      notifyListeners();
+    }
   }
 
   Future<void> adicionarItem({
@@ -48,6 +61,15 @@ class RanchoViewModel extends ChangeNotifier {
     }
 
     _itensAgrupados[itemComId.categoriaId]!.add(itemComId);
+    notifyListeners();
+  }
+
+  Future<void> initializeShoppingLists() async {
+    final List<RanchoModel> shoppingListsGetter = await DatabaseHelper.instance
+        .getAllRanchos();
+
+    _shoppingLists.clear();
+    _shoppingLists.addAll(shoppingListsGetter);
     notifyListeners();
   }
 
@@ -145,6 +167,8 @@ class RanchoViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> updateBuyList(RanchoModel rancho) async {}
+
   Future<void> deleteItem(ItemModel item) async {
     //posição original do item
     final lista = _itensAgrupados[item.categoriaId];
@@ -160,6 +184,33 @@ class RanchoViewModel extends ChangeNotifier {
       await DatabaseHelper.instance.deleteItem(item.id!);
     } catch (e) {
       //
+    }
+  }
+
+  Future<void> deleteBuyList(RanchoModel rancho) async {
+    // 1. Localiza o índice real comparando os IDs
+    print(
+      'Tentando deletar ID: ${rancho.id}. IDs na memória: ${_shoppingLists.map((e) => e.id).toList()}',
+    );
+    final index = _shoppingLists.indexWhere((i) => i.id == rancho.id);
+
+    if (index != -1) {
+      // 2. Remove da lista e guarda o backup (caso o banco falhe)
+      final backup = _shoppingLists.removeAt(index);
+      print('RANCHO REMOVIDO NA MEMORIA $backup');
+
+      // 3. O SEGREDO: notifyListeners() IMEDIATAMENTE após o removeAt
+      notifyListeners();
+
+      try {
+        await DatabaseHelper.instance.deleteRancho(rancho.id!);
+        print('Sucesso: ${rancho.mercado} removido DO BANCO. ID ${rancho.id}');
+      } catch (e) {
+        // 4. Se o banco der erro, devolvemos o item para a lista
+        _shoppingLists.insert(index, backup);
+        notifyListeners();
+        print('Erro ao excluir: $e');
+      }
     }
   }
 }
