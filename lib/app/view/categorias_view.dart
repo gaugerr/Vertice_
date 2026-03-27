@@ -35,74 +35,73 @@ class _CategoriasViewState extends State<CategoriasView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        //centerTitle: true,
-        title: Text(widget.ranchoModel.mercado),
-        actions: [
-          ListenableBuilder(
-            listenable: widget.ranchoViewModel,
-            builder: (context, _) {
-              final total = widget.ranchoViewModel.calcularTotalRancho(
-                widget.ranchoModel,
-              );
-
-              return Padding(
-                padding: const EdgeInsets.only(right: 30),
-                child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: Colors.green.shade300,
-                        width: 1,
-                      ),
-                    ),
-                    child: Text(
-                      'Total: R\$ ${total.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        color: Colors.green,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ],
+        centerTitle: true,
+        title: Text(
+          widget.ranchoModel.mercado,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
       ),
 
-      body: FutureBuilder<List<CategoriaModel>>(
-        future: _categoriasFuture,
+      // Definindo o local do FAB para o centro inferior
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: ListenableBuilder(
+        listenable: widget.ranchoViewModel,
+        builder: (context, _) {
+          final total = widget.ranchoViewModel.calcularTotalRancho(
+            widget.ranchoModel,
+          );
 
-        builder: (context, asyncSnapshot) {
-          if (asyncSnapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (asyncSnapshot.hasError) {
-            return Center(child: Text('Erro de conexão com o banco de dados'));
-          } else {
-            if (asyncSnapshot.data!.isEmpty) {
-              return Center(
-                child: Text('Nenhuma categoria de compras encontrada'),
+          return FloatingActionButton.extended(
+            onPressed: null, // Apenas para exibição do valor
+            backgroundColor: Colors.black,
+            // Estilo idêntico ao da tela de itens (levemente arredondado)
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+              side: BorderSide(color: Colors.green.shade300, width: 1),
+            ),
+            label: Text(
+              'Total: R\$ ${total.toStringAsFixed(2)}',
+              style: const TextStyle(
+                color: Colors.green,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+          );
+        },
+      ),
+
+      body: Padding(
+        padding: const EdgeInsets.only(top: 16.0),
+        child: FutureBuilder<List<CategoriaModel>>(
+          future: _categoriasFuture,
+          builder: (context, asyncSnapshot) {
+            if (asyncSnapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (asyncSnapshot.hasError) {
+              return const Center(
+                child: Text('Erro de conexão com o banco de dados'),
+              );
+            } else {
+              if (asyncSnapshot.data!.isEmpty) {
+                return const Center(
+                  child: Text('Nenhuma categoria de compras encontrada'),
+                );
+              }
+              return MyGridBuilder(
+                colunas: 2,
+                itemCount: asyncSnapshot.data!.length,
+                itemBuilder: (context, index) {
+                  final categorias = asyncSnapshot.data![index];
+                  return CategoriasCard(
+                    ranchoViewModel: widget.ranchoViewModel,
+                    categorias: categorias,
+                  );
+                },
               );
             }
-            return MyGridBuilder(
-              colunas: 2,
-              itemCount: asyncSnapshot.data!.length,
-              itemBuilder: (context, index) {
-                final categorias = asyncSnapshot.data![index];
-                return CategoriasCard(
-                  ranchoViewModel: widget.ranchoViewModel,
-                  categorias: categorias,
-                );
-              },
-            );
-          }
-        },
+          },
+        ),
       ),
     );
   }

@@ -34,41 +34,45 @@ class _ItensViewState extends State<ItensView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true, // Centraliza para dar um ar mais limpo
         title: Text(widget.categoriaModel.tituloCategoria),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 30),
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.green.shade300, width: 1),
-                ),
-                child: ListenableBuilder(
-                  listenable: widget.ranchoViewModel,
-                  builder: (context, _) => Text(
-                    'Total: R\$ ${widget.ranchoViewModel.calcularTotalCategoria(widget.categoriaModel).toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      color: Colors.green,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                    ),
-                  ),
-                ),
+        // Removido o chip das actions para não cortar o título
+      ),
+      // Adicionado o FAB centralizado com o total
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: ListenableBuilder(
+        listenable: widget.ranchoViewModel,
+        builder: (context, _) {
+          final total = widget.ranchoViewModel.calcularTotalCategoria(
+            widget.categoriaModel,
+          );
+          return FloatingActionButton.extended(
+            onPressed: null,
+            // Mantendo o fundo escuro que combina com seu app
+            backgroundColor: Colors.black,
+            // AJUSTE AQUI: Mudando de bola para o seu estilo levemente arredondado
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(
+                10,
+              ), // Mesmo raio do seu código original
+              side: BorderSide(color: Colors.green.shade300, width: 1),
+            ),
+            label: Text(
+              'Total: R\$ ${total.toStringAsFixed(2)}',
+              style: const TextStyle(
+                color: Colors.green,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
               ),
             ),
-          ),
-        ],
+          );
+        },
       ),
       body: Padding(
         padding: const EdgeInsets.all(8),
         child: Column(
           children: [
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Form(
               key: _formKey,
               child: TextFormField(
@@ -89,24 +93,19 @@ class _ItensViewState extends State<ItensView> {
                   ),
                 ),
                 focusNode: _focusNode,
-
                 onFieldSubmitted: (value) {
                   if (_formKey.currentState!.validate()) {
                     widget.ranchoViewModel.adicionarItem(
                       categoria: widget.categoriaModel,
                       nomeDigitado: value.trim(),
                     );
-                    _nameItemController.clear(); //limpa o campo ao dar enter
-                    _formKey.currentState!
-                        .reset(); //reseta a mensagem de erro do campo
-                    _focusNode.requestFocus(); //mantém o teclado na tela
-                  } else {
-                    // mostra erros se a validação falhar
+                    _nameItemController.clear();
+                    _formKey.currentState!.reset();
+                    _focusNode.requestFocus();
                   }
                 },
               ),
             ),
-
             Expanded(
               child: ListenableBuilder(
                 listenable: widget.ranchoViewModel,
