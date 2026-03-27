@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:rancho_consciente/app/helpers/database_helper.dart';
-import 'package:rancho_consciente/app/model/rancho_model.dart';
 import 'package:rancho_consciente/app/view/add_rancho_forms.dart';
 import 'package:rancho_consciente/app/view_model/rancho_viewmodel.dart';
 import 'package:rancho_consciente/app/widgets/bottom_sheet.dart';
@@ -17,20 +15,11 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   final ranchoViewModel = RanchoViewModel();
 
-  Future<List<RanchoModel>>? _ranchosFuture;
-
-  //atualiza os dados do banco, ao adicionar um novo rancho
-  void _atualizarLista() {
-    setState(() {
-      _ranchosFuture = DatabaseHelper.instance.getAllRanchos();
-    });
-  }
-
-  //pega os dados do banco apenas quando a tela é chamada (abrir app/voltar pra tela de ranchos)
   @override
   void initState() {
     super.initState();
-    _ranchosFuture = DatabaseHelper.instance.getAllRanchos();
+
+    ranchoViewModel.initializeShoppingLists();
   }
 
   @override
@@ -57,10 +46,7 @@ class _AppState extends State<App> {
           onPressed: () {
             ShowBottomSheet.bottomSheet(
               context,
-              AddRanchoForms(
-                viewModel: ranchoViewModel,
-                onSave: _atualizarLista,
-              ),
+              AddRanchoForms(viewModel: ranchoViewModel),
             );
           },
 
@@ -78,36 +64,26 @@ class _AppState extends State<App> {
       body: ListenableBuilder(
         listenable: ranchoViewModel,
         builder: (context, child) {
-          /*TO DO implementar um future builder, que vai receber a função 
-          gettAllRanchos da database */
+          final listas = ranchoViewModel.shoppingLists;
 
-          return FutureBuilder<List<RanchoModel>>(
-            future: _ranchosFuture,
-            builder: (context, asyncSnapshot) {
-              if (asyncSnapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
-              } else if (asyncSnapshot.hasError) {
-                return Center(
-                  child: Text('Erro de conexão com o banco de dados'),
-                );
-              } else {
-                if (asyncSnapshot.data!.isEmpty) {
-                  return Center(
-                    child: Text('Nenhuma lista de compras criada!'),
-                  );
-                }
-                return MyGridBuilder(
-                  colunas: 1,
-                  itemCount: asyncSnapshot.data!.length,
-                  itemBuilder: (context, index) {
-                    final rancho = asyncSnapshot.data![index];
-                    return RanchoCard(
-                      ranchoViewModel: ranchoViewModel,
-                      rancho: rancho,
-                    );
-                  },
-                );
-              }
+          if (listas.isEmpty) {
+            return const Center(
+              child: Text(
+                'Nenhuma lista de compras criada!',
+                style: TextStyle(color: Colors.white60),
+              ),
+            );
+          }
+
+          return MyGridBuilder(
+            colunas: 1,
+            itemCount: listas.length,
+            itemBuilder: (context, index) {
+              final rancho = listas[index];
+              return RanchoCard(
+                ranchoViewModel: ranchoViewModel,
+                rancho: rancho,
+              );
             },
           );
         },
