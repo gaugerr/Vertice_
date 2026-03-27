@@ -20,14 +20,14 @@ class RanchoModel {
   });
 
   RanchoModel copyWith({
-    ValueGetter<int?>? id,
+    int? id,
     String? mercado,
     DateTime? data,
     String? descricao,
     List<CategoriaModel>? categorias,
   }) {
     return RanchoModel(
-      id: id != null ? id() : this.id,
+      id: id ?? this.id,
       mercado: mercado ?? this.mercado,
       data: data ?? this.data,
       descricao: descricao ?? this.descricao,
