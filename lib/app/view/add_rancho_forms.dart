@@ -55,9 +55,9 @@ class _AddRanchoFormsState extends State<AddRanchoForms> {
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Digite o nome do mercado';
+                    return 'Digite um título para a lista de compras';
                   } else if (value.length > 30) {
-                    return 'O nome não pode exceder 30 caracteres';
+                    return 'O título não pode exceder 30 caracteres';
                   }
                   return null;
                 },
@@ -65,7 +65,7 @@ class _AddRanchoFormsState extends State<AddRanchoForms> {
                 //style: TextStyle(color: Colors.black),
                 decoration: InputDecoration(
                   hint: Text(
-                    'Nome do Mercado',
+                    'Título da lista',
                     style: TextStyle(color: Colors.white24),
                   ),
                 ),
