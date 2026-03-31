@@ -4,14 +4,14 @@ import 'package:flutter/foundation.dart';
 
 import 'categoria_model.dart';
 
-class RanchoModel {
+class ShoppingListModel {
   int? id;
   String mercado;
   DateTime data;
   String descricao;
   List<CategoriaModel> categorias;
 
-  RanchoModel({
+  ShoppingListModel({
     this.id,
     required this.mercado,
     required this.data,
@@ -19,14 +19,14 @@ class RanchoModel {
     this.categorias = const [],
   });
 
-  RanchoModel copyWith({
+  ShoppingListModel copyWith({
     int? id,
     String? mercado,
     DateTime? data,
     String? descricao,
     List<CategoriaModel>? categorias,
   }) {
-    return RanchoModel(
+    return ShoppingListModel(
       id: id ?? this.id,
       mercado: mercado ?? this.mercado,
       data: data ?? this.data,
@@ -45,8 +45,8 @@ class RanchoModel {
     };
   }
 
-  factory RanchoModel.fromMap(Map<String, dynamic> map) {
-    return RanchoModel(
+  factory ShoppingListModel.fromMap(Map<String, dynamic> map) {
+    return ShoppingListModel(
       id: map['id']?.toInt(),
       mercado: map['mercado'] ?? '',
       data: DateTime.fromMillisecondsSinceEpoch(map['data']),
@@ -57,19 +57,19 @@ class RanchoModel {
 
   String toJson() => json.encode(toMap());
 
-  factory RanchoModel.fromJson(String source) =>
-      RanchoModel.fromMap(json.decode(source));
+  factory ShoppingListModel.fromJson(String source) =>
+      ShoppingListModel.fromMap(json.decode(source));
 
   @override
   String toString() {
-    return 'RanchoModel(id: $id, mercado: $mercado, data: $data, descricao: $descricao, categorias: $categorias)';
+    return 'ShoppingListModel(id: $id, mercado: $mercado, data: $data, descricao: $descricao, categorias: $categorias)';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other is RanchoModel &&
+    return other is ShoppingListModel &&
         other.id == id &&
         other.mercado == mercado &&
         other.data == data &&

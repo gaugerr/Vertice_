@@ -9,7 +9,7 @@ import 'package:rancho_consciente/app/widgets/rename_action_dialog.dart';
 
 class RanchoCard extends StatelessWidget {
   final RanchoViewModel ranchoViewModel;
-  final RanchoModel rancho;
+  final ShoppingListModel rancho;
   const RanchoCard({
     super.key,
     required this.rancho,

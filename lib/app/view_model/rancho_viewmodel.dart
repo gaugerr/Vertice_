@@ -6,15 +6,15 @@ import 'package:rancho_consciente/app/model/rancho_model.dart';
 
 class RanchoViewModel extends ChangeNotifier {
   final Map<int, List<ItemModel>> _itensAgrupados = {};
-  final List<RanchoModel> _shoppingLists = [];
-  List<RanchoModel> get shoppingLists => _shoppingLists;
+  final List<ShoppingListModel> _shoppingLists = [];
+  List<ShoppingListModel> get shoppingLists => _shoppingLists;
 
   Future<void> adicionarRancho({
     required String nomeMercado,
     required DateTime data,
     required String descricao,
   }) async {
-    final rancho = RanchoModel(
+    final rancho = ShoppingListModel(
       id: null, //gerado automaticamente pelo autoincrement do sql
       mercado: nomeMercado,
       data: data,
@@ -64,7 +64,8 @@ class RanchoViewModel extends ChangeNotifier {
   }
 
   Future<void> initializeShoppingLists() async {
-    final List<RanchoModel> shoppingListsGetter = await DatabaseHelper.instance
+    final List<ShoppingListModel> shoppingListsGetter = await DatabaseHelper
+        .instance
         .getAllRanchos();
 
     _shoppingLists.clear();
@@ -124,7 +125,7 @@ class RanchoViewModel extends ChangeNotifier {
     return totalCategoria;
   }
 
-  double calcularTotalRancho(RanchoModel rancho) {
+  double calcularTotalRancho(ShoppingListModel rancho) {
     double total = 0.0;
     // Percorre cada "balde" (lista de itens) dentro do Mapa
     for (var listaDeItens in _itensAgrupados.values) {
@@ -166,7 +167,7 @@ class RanchoViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> updateBuyList(RanchoModel rancho) async {}
+  Future<void> updateBuyList(ShoppingListModel rancho) async {}
 
   Future<void> deleteItem(ItemModel item) async {
     //posição original do item
@@ -186,7 +187,7 @@ class RanchoViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> deleteBuyList(RanchoModel rancho) async {
+  Future<void> deleteBuyList(ShoppingListModel rancho) async {
     // 1. Localiza o índice real comparando os IDs
 
     final index = _shoppingLists.indexWhere((i) => i.id == rancho.id);

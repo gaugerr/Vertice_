@@ -8,7 +8,7 @@ import 'package:rancho_consciente/app/widgets/grid_builder.dart';
 
 class CategoriasView extends StatefulWidget {
   final RanchoViewModel ranchoViewModel;
-  final RanchoModel ranchoModel;
+  final ShoppingListModel ranchoModel;
   const CategoriasView({
     super.key,
     required this.ranchoModel,

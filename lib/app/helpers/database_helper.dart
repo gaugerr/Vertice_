@@ -88,7 +88,7 @@ class DatabaseHelper {
 
   //INSERIR RANCHO
   // Insere um novo Rancho e retorna o ID gerado pelo banco
-  Future<int> insertRancho(RanchoModel rancho) async {
+  Future<int> insertRancho(ShoppingListModel rancho) async {
     final db = await instance.database; // Abre a conexão
 
     // O 'insert' traduz o objeto para SQL automaticamente usando o toMap
@@ -110,7 +110,7 @@ class DatabaseHelper {
   }
 
   //CRIA UM RANCHO COM AS CAT. PADRÃO JÁ INCLUSAS
-  Future<int> criarNovoRanchoComCategorias(RanchoModel novoRancho) async {
+  Future<int> criarNovoRanchoComCategorias(ShoppingListModel novoRancho) async {
     // 1. Salva o Rancho e pega o ID dele
     final idDoRancho = await insertRancho(novoRancho);
 
@@ -125,7 +125,7 @@ class DatabaseHelper {
   }
 
   // BUSCA OS RANCHOS JÁ SALVOS NO BANCO
-  Future<List<RanchoModel>> getAllRanchos() async {
+  Future<List<ShoppingListModel>> getAllRanchos() async {
     // 1. Obtém a instância do banco de dados
     final db = await instance.database;
 
@@ -133,11 +133,11 @@ class DatabaseHelper {
     final result = await db.query('ranchos');
 
     // 3. Converte a lista de Mapas para uma lista de Objetos RanchoModel
-    return result.map((json) => RanchoModel.fromMap(json)).toList();
+    return result.map((json) => ShoppingListModel.fromMap(json)).toList();
   }
 
   // BUSCAR UM RANCHO ESPECIFIC0 PELO ID
-  Future<RanchoModel?> getRanchoById(int id) async {
+  Future<ShoppingListModel?> getRanchoById(int id) async {
     // 1. Acessa a instância do banco
     final db = await instance.database;
 
@@ -156,7 +156,7 @@ class DatabaseHelper {
 
     // 3. Verifica se encontrou algo
     if (maps.isNotEmpty) {
-      return RanchoModel.fromMap(maps.first);
+      return ShoppingListModel.fromMap(maps.first);
     } else {
       return null; // Caso o ID não exista
     }
