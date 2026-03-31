@@ -3,7 +3,7 @@ import 'package:rancho_consciente/app/utils/utils.dart';
 import 'package:rancho_consciente/app/view_model/rancho_viewmodel.dart';
 
 class AddRanchoForms extends StatefulWidget {
-  final RanchoViewModel viewModel;
+  final ShoppingListViewModel viewModel;
 
   const AddRanchoForms({super.key, required this.viewModel});
 

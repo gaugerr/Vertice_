@@ -6,7 +6,7 @@ import 'package:rancho_consciente/app/widgets/popup_menu_button.dart';
 import 'package:rancho_consciente/app/widgets/rename_action_dialog.dart';
 
 class ItemCard extends StatefulWidget {
-  final RanchoViewModel ranchoViewModel;
+  final ShoppingListViewModel ranchoViewModel;
   final ItemModel itemModel;
   const ItemCard({
     super.key,

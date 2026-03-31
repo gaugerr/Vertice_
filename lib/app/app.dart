@@ -13,7 +13,7 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
-  final ranchoViewModel = RanchoViewModel();
+  final ranchoViewModel = ShoppingListViewModel();
 
   @override
   void initState() {

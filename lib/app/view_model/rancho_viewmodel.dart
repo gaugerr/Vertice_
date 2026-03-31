@@ -4,7 +4,7 @@ import 'package:rancho_consciente/app/model/categoria_model.dart';
 import 'package:rancho_consciente/app/model/item_model.dart';
 import 'package:rancho_consciente/app/model/rancho_model.dart';
 
-class RanchoViewModel extends ChangeNotifier {
+class ShoppingListViewModel extends ChangeNotifier {
   final Map<int, List<ItemModel>> _itensAgrupados = {};
   final List<ShoppingListModel> _shoppingLists = [];
   List<ShoppingListModel> get shoppingLists => _shoppingLists;

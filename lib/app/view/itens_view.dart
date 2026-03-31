@@ -5,7 +5,7 @@ import 'package:rancho_consciente/app/widgets/cards/itens.card.dart';
 import 'package:rancho_consciente/app/widgets/list_view_builder.dart';
 
 class ItensView extends StatefulWidget {
-  final RanchoViewModel ranchoViewModel;
+  final ShoppingListViewModel ranchoViewModel;
   final CategoriaModel categoriaModel;
   const ItensView({
     super.key,

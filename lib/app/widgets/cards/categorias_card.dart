@@ -5,7 +5,7 @@ import 'package:rancho_consciente/app/view/itens_view.dart';
 import 'package:rancho_consciente/app/view_model/rancho_viewmodel.dart';
 
 class CategoriasCard extends StatelessWidget {
-  final RanchoViewModel ranchoViewModel;
+  final ShoppingListViewModel ranchoViewModel;
   final CategoriaModel categorias;
   const CategoriasCard({
     super.key,
