@@ -47,9 +47,9 @@ class DatabaseHelper {
 
   // F. CRIAÇÃO DAS TABELAS: Onde o SQL acontece.
   Future _createDB(Database db, int version) async {
-    // 1. Tabela de Ranchos (A Raiz)
+    // 1. Tabela de Listas de Compras (A Raiz)
     await db.execute('''
-      CREATE TABLE ranchos (
+      CREATE TABLE shoppingLists (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         mercado TEXT NOT NULL,
         data INTEGER NOT NULL,
@@ -57,13 +57,13 @@ class DatabaseHelper {
       )
     ''');
 
-    // 2. Tabela de Categorias (Ligada ao Rancho)
+    // 2. Tabela de Categorias (Ligada a shoppingLists)
     await db.execute('''
       CREATE TABLE categorias (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         tituloCategoria TEXT NOT NULL,
-        ranchoId INTEGER,
-        FOREIGN KEY (ranchoId) REFERENCES ranchos (id) ON DELETE CASCADE
+        shoppingListId INTEGER,
+        FOREIGN KEY (shoppingListId) REFERENCES shoppingLists (id) ON DELETE CASCADE
       )
     ''');
 
@@ -77,8 +77,8 @@ class DatabaseHelper {
         unidade TEXT NOT NULL,
         isComprado INTEGER NOT NULL,
         categoriaId INTEGER,
-        ranchoId INTEGER,
-        FOREIGN KEY (ranchoId) REFERENCES ranchos (id) ON DELETE CASCADE,
+        shoppingListId INTEGER,
+        FOREIGN KEY (shoppingListId) REFERENCES shoppingLists (id) ON DELETE CASCADE,
         FOREIGN KEY (categoriaId) REFERENCES categorias (id) ON DELETE CASCADE
       )
     ''');
@@ -92,19 +92,22 @@ class DatabaseHelper {
     final db = await instance.database; // Abre a conexão
 
     // O 'insert' traduz o objeto para SQL automaticamente usando o toMap
-    return await db.insert('ranchos', rancho.toMap());
+    return await db.insert('shoppingLists', rancho.toMap());
   }
 
   //INSERIR CATEGORIAS PADRÃO
   // Insere uma categoria ligada a um Rancho específico
-  Future<int> insertCategoria(CategoriaModel categoria, int ranchoId) async {
+  Future<int> insertCategoria(
+    CategoriaModel categoria,
+    int shoppingListId,
+  ) async {
     final db = await instance.database;
 
     // Criamos o mapa da categoria
     final map = categoria.toMap();
 
     // Adicionamos manualmente a chave estrangeira para o banco saber a quem ela pertence
-    map['ranchoId'] = ranchoId;
+    map['shoppingListId'] = shoppingListId;
 
     return await db.insert('categorias', map);
   }
@@ -124,13 +127,13 @@ class DatabaseHelper {
     return idDoRancho;
   }
 
-  // BUSCA OS RANCHOS JÁ SALVOS NO BANCO
+  // BUSCA OS shoppingLists JÁ SALVOS NO BANCO
   Future<List<ShoppingListModel>> getAllRanchos() async {
     // 1. Obtém a instância do banco de dados
     final db = await instance.database;
 
-    // 2. Faz a query na tabela 'ranchos'
-    final result = await db.query('ranchos');
+    // 2. Faz a query na tabela 'shoppingLists'
+    final result = await db.query('shoppingLists');
 
     // 3. Converte a lista de Mapas para uma lista de Objetos RanchoModel
     return result.map((json) => ShoppingListModel.fromMap(json)).toList();
@@ -143,7 +146,7 @@ class DatabaseHelper {
 
     // 2. Realiza a busca com um filtro (WHERE)
     final maps = await db.query(
-      'ranchos',
+      'shoppingLists',
       columns: [
         'id',
         'mercado',
@@ -163,14 +166,16 @@ class DatabaseHelper {
   }
 
   // BUSCA AS CATEGORIAS LIGADAS A UM RANCHO ESPECIFICO
-  Future<List<CategoriaModel>> getCategoriasPorRancho(int ranchoId) async {
+  Future<List<CategoriaModel>> getCategoriasPorRancho(
+    int shoppingListId,
+  ) async {
     final db = await instance.database;
 
-    // Filtramos a tabela categorias onde o ranchoId seja igual ao ID passado
+    // Filtramos a tabela categorias onde o shoppingListId seja igual ao ID passado
     final result = await db.query(
       'categorias',
-      where: 'ranchoId = ?',
-      whereArgs: [ranchoId],
+      where: 'shoppingListId = ?',
+      whereArgs: [shoppingListId],
     );
 
     return result.map((json) => CategoriaModel.fromMap(json)).toList();
@@ -193,14 +198,14 @@ class DatabaseHelper {
     return result.map((json) => ItemModel.fromMap(json)).toList();
   }
 
-  Future<List<ItemModel>> getItensPorRancho(int ranchoId) async {
+  Future<List<ItemModel>> getItensPorRancho(int shoppingListId) async {
     final db = await instance.database;
 
     // 1. Fazemos a busca filtrando pelo ID do Rancho
     final result = await db.query(
       'itens', // Nome da sua tabela
-      where: 'ranchoId = ?',
-      whereArgs: [ranchoId],
+      where: 'shoppingListId = ?',
+      whereArgs: [shoppingListId],
     );
 
     // 2. Transformamos a lista de Maps (JSON) em uma lista de ItemModel
@@ -227,7 +232,7 @@ class DatabaseHelper {
 
   Future<int> deleteRancho(int id) async {
     final db = await instance.database;
-    return await db.delete('ranchos', where: 'id = ?', whereArgs: [id]);
+    return await db.delete('shoppingLists', where: 'id = ?', whereArgs: [id]);
   }
 
   // INSERIR ITEM
