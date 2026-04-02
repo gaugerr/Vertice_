@@ -20,7 +20,9 @@ class DatabaseHelper {
   // Se ele já estiver aberto, devolve o que existe. Se não, chama a inicialização.
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDB('rancho_app.db'); // Aqui chamamos o método abaixo
+    _database = await _initDB(
+      'vertice_app.db',
+    ); // Aqui chamamos o método abaixo
     return _database!;
   }
 
