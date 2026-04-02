@@ -2,13 +2,13 @@ import 'dart:convert';
 
 class CategoriaModel {
   int? id;
-  int? ranchoId; // O elo com o Rancho
+  int? shoppingListId; // O elo com a shoppingList
   String tituloCategoria;
 
-  CategoriaModel({this.id, this.ranchoId, required this.tituloCategoria});
+  CategoriaModel({this.id, this.shoppingListId, required this.tituloCategoria});
 
-  // Nota: Aqui as categorias nascem sem ranchoId, você deve atribuir
-  // o ID do rancho atual antes de salvar no banco.
+  // Nota: Aqui as categorias nascem sem shoppingListId, você deve atribuir
+  // o ID da shoppingList atual antes de salvar no banco.
   static List<CategoriaModel> gerarCategoriasPadrao() {
     return [
       CategoriaModel(tituloCategoria: 'Essenciais'),
@@ -21,10 +21,14 @@ class CategoriaModel {
   }
 
   // Simplificado para aceitar int? direto, como fizemos na ItemModel
-  CategoriaModel copyWith({int? id, int? ranchoId, String? tituloCategoria}) {
+  CategoriaModel copyWith({
+    int? id,
+    int? shoppingListId,
+    String? tituloCategoria,
+  }) {
     return CategoriaModel(
       id: id ?? this.id,
-      ranchoId: ranchoId ?? this.ranchoId,
+      shoppingListId: shoppingListId ?? this.shoppingListId,
       tituloCategoria: tituloCategoria ?? this.tituloCategoria,
     );
   }
@@ -32,7 +36,7 @@ class CategoriaModel {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'ranchoId': ranchoId, // Injetado
+      'shoppingListId': shoppingListId, // Injetado
       'tituloCategoria': tituloCategoria,
     };
   }
@@ -40,7 +44,7 @@ class CategoriaModel {
   factory CategoriaModel.fromMap(Map<String, dynamic> map) {
     return CategoriaModel(
       id: map['id']?.toInt(),
-      ranchoId: map['ranchoId']?.toInt(), // Injetado
+      shoppingListId: map['shoppingListId']?.toInt(), // Injetado
       tituloCategoria: map['tituloCategoria'] ?? '',
     );
   }
@@ -52,7 +56,7 @@ class CategoriaModel {
 
   @override
   String toString() =>
-      'CategoriaModel(id: $id, ranchoId: $ranchoId, tituloCategoria: $tituloCategoria)';
+      'CategoriaModel(id: $id, shoppingListId: $shoppingListId, tituloCategoria: $tituloCategoria)';
 
   @override
   bool operator ==(Object other) {
@@ -60,11 +64,11 @@ class CategoriaModel {
 
     return other is CategoriaModel &&
         other.id == id &&
-        other.ranchoId == ranchoId && // Comparação injetada
+        other.shoppingListId == shoppingListId && // Comparação injetada
         other.tituloCategoria == tituloCategoria;
   }
 
   @override
   int get hashCode =>
-      id.hashCode ^ ranchoId.hashCode ^ tituloCategoria.hashCode;
+      id.hashCode ^ shoppingListId.hashCode ^ tituloCategoria.hashCode;
 }
