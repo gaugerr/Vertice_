@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 
 class MyGridBuilder extends StatelessWidget {
   final int itemCount;
-  final int colunas;
+  final int columns;
   final Widget Function(BuildContext context, int index) itemBuilder;
 
   const MyGridBuilder({
     super.key,
     required this.itemCount,
     required this.itemBuilder,
-    required this.colunas,
+    required this.columns,
   });
 
   @override
@@ -21,8 +21,8 @@ class MyGridBuilder extends StatelessWidget {
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisSpacing: 10,
         mainAxisSpacing: 10,
-        crossAxisCount: colunas,
-        childAspectRatio: colunas == 1 ? 2.5 : 0.8,
+        crossAxisCount: columns,
+        childAspectRatio: columns == 1 ? 2.5 : 0.8,
       ),
       itemBuilder: itemBuilder,
     );

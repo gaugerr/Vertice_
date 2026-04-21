@@ -1,36 +1,34 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:vertice/app/model/shopping_list_model.dart';
-import 'package:vertice/app/view/categorias_view.dart';
+import 'package:vertice/app/view/categories_view.dart';
 import 'package:vertice/app/view_model/shopping_list_viewmodel.dart';
 import 'package:vertice/app/widgets/confirm_action_dialog.dart';
 import 'package:vertice/app/widgets/popup_menu_button.dart';
 import 'package:vertice/app/widgets/rename_action_dialog.dart';
 
 class ShoppingListCard extends StatelessWidget {
-  final ShoppingListViewModel ranchoViewModel;
-  final ShoppingListModel rancho;
+  final ShoppingListViewModel viewModel;
+  final ShoppingListModel shoppingList;
   const ShoppingListCard({
     super.key,
-    required this.rancho,
-    required this.ranchoViewModel,
+    required this.shoppingList,
+    required this.viewModel,
   });
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Theme.of(
-        context,
-      ).colorScheme.surface, // Usa o cinza escuro do seu tema
+      color: Theme.of(context).colorScheme.surface,
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () {
           Navigator.push(
             context,
             CupertinoPageRoute(
-              builder: (_) => CategoriasView(
-                ranchoViewModel: ranchoViewModel,
-                ranchoModel: rancho,
+              builder: (_) => CategoriesView(
+                viewModel: viewModel,
+                shoppingList: shoppingList,
               ),
             ),
           );
@@ -45,7 +43,7 @@ class ShoppingListCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      rancho.mercado,
+                      shoppingList.storeName,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.primary,
@@ -55,7 +53,7 @@ class ShoppingListCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      rancho.descricao,
+                      shoppingList.description,
                       style: const TextStyle(
                         color: Colors.white60,
                         fontSize: 14,
@@ -64,7 +62,7 @@ class ShoppingListCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      "${rancho.data.day.toString().padLeft(2, '0')}/${rancho.data.month.toString().padLeft(2, '0')}/${rancho.data.year}",
+                      "${shoppingList.date.day.toString().padLeft(2, '0')}/${shoppingList.date.month.toString().padLeft(2, '0')}/${shoppingList.date.year}",
                       style: const TextStyle(
                         color: Colors.white24,
                         fontSize: 12,
@@ -82,12 +80,12 @@ class ShoppingListCard extends StatelessWidget {
                 onExcludePressed: () => showDialog(
                   context: context,
                   builder: (context) => ConfirmActionDialog(
-                    title: 'Excluir Lista?',
-                    description: "Deseja remover '${rancho.mercado}'?",
-                    cancelActionLabel: 'CANCELAR',
-                    confirmActionLabel: 'EXCLUIR',
+                    title: 'Delete list?',
+                    description: "Remove '${shoppingList.storeName}'?",
+                    cancelActionLabel: 'CANCEL',
+                    confirmActionLabel: 'DELETE',
                     onConfirm: () async =>
-                        await ranchoViewModel.deleteBuyList(rancho),
+                        await viewModel.deleteShoppingList(shoppingList),
                     confirmColor: Colors.red,
                   ),
                 ),
@@ -95,22 +93,21 @@ class ShoppingListCard extends StatelessWidget {
                   context: context,
                   builder: (context) => RenameActionDialog(
                     renamedController: TextEditingController(
-                      text: rancho.mercado,
+                      text: shoppingList.storeName,
                     ),
-                    title: 'Renomear Lista',
-                    validatorErrorEmpty: 'Digite o nome do Mercado',
-                    validatorErrorMaximumLength: 'Máximo 50 caracteres',
-                    cancelActionLabel: 'CANCELAR',
-                    confirmActionLabel: 'SALVAR',
-                    onConfirm: (novoNome) async {
-                      final itemNovo = rancho.copyWith(mercado: novoNome);
-
-                      await ranchoViewModel.updateBuyList(itemNovo);
+                    title: 'Rename list',
+                    validatorErrorEmpty: 'Enter the store name',
+                    validatorErrorMaximumLength: 'Maximum 50 characters',
+                    cancelActionLabel: 'CANCEL',
+                    confirmActionLabel: 'SAVE',
+                    onConfirm: (newName) async {
+                      final updated = shoppingList.copyWith(storeName: newName);
+                      await viewModel.updateShoppingList(updated);
                     },
                   ),
                 ),
-                excludeLabel: 'Excluir',
-                renameLabel: 'Renomear',
+                excludeLabel: 'Delete',
+                renameLabel: 'Rename',
               ),
             ),
           ],

@@ -6,12 +6,12 @@ import 'package:vertice/app/widgets/popup_menu_button.dart';
 import 'package:vertice/app/widgets/rename_action_dialog.dart';
 
 class ItemCard extends StatefulWidget {
-  final ShoppingListViewModel ranchoViewModel;
+  final ShoppingListViewModel viewModel;
   final ItemModel itemModel;
   const ItemCard({
     super.key,
     required this.itemModel,
-    required this.ranchoViewModel,
+    required this.viewModel,
   });
 
   @override
@@ -21,36 +21,35 @@ class ItemCard extends StatefulWidget {
 class _ItemCardState extends State<ItemCard> {
   final _formKey = GlobalKey<FormState>();
 
-  final TextEditingController _qtdController = TextEditingController();
-  final TextEditingController _precoController = TextEditingController();
+  final TextEditingController _quantityController = TextEditingController();
+  final TextEditingController _priceController = TextEditingController();
   final TextEditingController _renamedItem = TextEditingController();
 
-  // Variável para controlar o estado de carregamento/processamento do botão
-  //final bool _isProcessing = false;
-  final FocusNode _precoFocusNode = FocusNode();
+  final FocusNode _priceFocusNode = FocusNode();
+
   @override
   void initState() {
     super.initState();
 
-    _precoFocusNode.addListener(() {
-      if (_precoFocusNode.hasFocus) {
-        _precoController.selection = TextSelection(
+    _priceFocusNode.addListener(() {
+      if (_priceFocusNode.hasFocus) {
+        _priceController.selection = TextSelection(
           baseOffset: 0,
-          extentOffset: _precoController.text.length,
+          extentOffset: _priceController.text.length,
         );
       }
     });
 
-    _qtdController.text = widget.itemModel.quantidade.toString();
-    _precoController.text = widget.itemModel.preco.toStringAsFixed(2);
-    _renamedItem.text = widget.itemModel.nomeItem.toString();
+    _quantityController.text = widget.itemModel.quantity.toString();
+    _priceController.text = widget.itemModel.price.toStringAsFixed(2);
+    _renamedItem.text = widget.itemModel.name.toString();
   }
 
   @override
   void dispose() {
-    _qtdController.dispose();
-    _precoController.dispose();
-    _precoFocusNode.dispose();
+    _quantityController.dispose();
+    _priceController.dispose();
+    _priceFocusNode.dispose();
     _renamedItem.dispose();
     super.dispose();
   }
@@ -67,31 +66,30 @@ class _ItemCardState extends State<ItemCard> {
               children: [
                 Checkbox(
                   visualDensity: VisualDensity.compact,
-                  value: widget.itemModel.isComprado,
+                  value: widget.itemModel.isPurchased,
                   onChanged: (bool? value) {
-                    final novoItem = widget.itemModel.copyWith(
-                      isComprado: !widget.itemModel.isComprado,
+                    final updatedItem = widget.itemModel.copyWith(
+                      isPurchased: !widget.itemModel.isPurchased,
                     );
-                    widget.ranchoViewModel.updateItem(novoItem);
+                    widget.viewModel.updateItem(updatedItem);
                   },
                 ),
                 SizedBox(width: 10),
                 Text(
-                  widget.itemModel.nomeItem,
+                  widget.itemModel.name,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    decoration: widget.itemModel.isComprado
+                    decoration: widget.itemModel.isPurchased
                         ? TextDecoration.lineThrough
                         : TextDecoration.none,
                   ),
                 ),
                 Spacer(),
 
-                // Spacer(),
-                if (widget.itemModel.isComprado) ...[
+                if (widget.itemModel.isPurchased) ...[
                   Text(
-                    'Total: R\$ ${widget.ranchoViewModel.calcularTotalItem(widget.itemModel).toStringAsFixed(2)}',
+                    'Total: R\$ ${widget.viewModel.calculateItemTotal(widget.itemModel).toStringAsFixed(2)}',
                   ),
                   SizedBox(width: 10),
                 ],
@@ -101,13 +99,13 @@ class _ItemCardState extends State<ItemCard> {
                     context: context,
                     builder: (BuildContext context) {
                       return ConfirmActionDialog(
-                        title: 'Excluir Item?',
+                        title: 'Delete item?',
                         description:
-                            "Deseja realmente remover '${widget.itemModel.nomeItem}' da lista?",
-                        cancelActionLabel: 'CANCELAR',
-                        confirmActionLabel: 'EXCLUIR',
+                            "Remove '${widget.itemModel.name}' from the list?",
+                        cancelActionLabel: 'CANCEL',
+                        confirmActionLabel: 'DELETE',
                         onConfirm: () async {
-                          await widget.ranchoViewModel.deleteItem(
+                          await widget.viewModel.deleteItem(
                             widget.itemModel,
                           );
                         },
@@ -120,24 +118,23 @@ class _ItemCardState extends State<ItemCard> {
                     builder: (BuildContext context) {
                       return RenameActionDialog(
                         renamedController: _renamedItem,
-                        title: 'Renomear Item',
-                        validatorErrorEmpty: 'Por favor, digite o nome do item',
+                        title: 'Rename Item',
+                        validatorErrorEmpty: 'Please enter a name',
                         validatorErrorMaximumLength:
-                            'O nome não pode exceder 50 caracteres',
-                        cancelActionLabel: 'CANCELAR',
-                        confirmActionLabel: 'SALVAR',
-
-                        onConfirm: (novoNome) async {
-                          final itemNovo = widget.itemModel.copyWith(
-                            nomeItem: novoNome,
+                            'Name cannot exceed 50 characters',
+                        cancelActionLabel: 'CANCEL',
+                        confirmActionLabel: 'SAVE',
+                        onConfirm: (newName) async {
+                          final updatedItem = widget.itemModel.copyWith(
+                            name: newName,
                           );
-                          await widget.ranchoViewModel.updateItem(itemNovo);
+                          await widget.viewModel.updateItem(updatedItem);
                         },
                       );
                     },
                   ),
-                  excludeLabel: 'Excluir',
-                  renameLabel: 'Renomear',
+                  excludeLabel: 'Delete',
+                  renameLabel: 'Rename',
                 ),
               ],
             ),
@@ -146,13 +143,13 @@ class _ItemCardState extends State<ItemCard> {
               key: _formKey,
               child: Row(
                 children: [
-                  if (widget.itemModel.isComprado) ...[
+                  if (widget.itemModel.isPurchased) ...[
                     Expanded(
                       flex: 3,
                       child: DropdownButtonFormField<String>(
-                        value: widget.itemModel.unidade, // "un", "kg", ou "l"
+                        value: widget.itemModel.unit,
                         decoration: const InputDecoration(
-                          labelText: 'Unidade',
+                          labelText: 'Unit',
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.symmetric(
                             horizontal: 8,
@@ -167,11 +164,10 @@ class _ItemCardState extends State<ItemCard> {
                         }).toList(),
                         onChanged: (value) {
                           if (value != null && value.isNotEmpty) {
-                            final novoItem = widget.itemModel.copyWith(
-                              unidade: value,
+                            final updatedItem = widget.itemModel.copyWith(
+                              unit: value,
                             );
-
-                            widget.ranchoViewModel.updateItem(novoItem);
+                            widget.viewModel.updateItem(updatedItem);
                           }
                         },
                       ),
@@ -182,33 +178,31 @@ class _ItemCardState extends State<ItemCard> {
                         keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,
                         ),
-                        controller: _qtdController,
+                        controller: _quantityController,
                         textInputAction: TextInputAction.next,
                         decoration: InputDecoration(
                           border: InputBorder.none,
-                          label: Text('Quantidade'),
+                          label: Text('Quantity'),
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 8,
                             vertical: 4,
                           ),
                         ),
-
                         onTap: () {
-                          _qtdController.selection = TextSelection(
+                          _quantityController.selection = TextSelection(
                             baseOffset: 0,
-                            extentOffset: _qtdController.text.length,
+                            extentOffset: _quantityController.text.length,
                           );
                         },
                         onChanged: (value) {
-                          final novaQtd =
+                          final newQuantity =
                               double.tryParse(value.replaceAll(',', '.')) ??
                               0.0;
 
-                          final novoItem = widget.itemModel.copyWith(
-                            quantidade: novaQtd,
+                          final updatedItem = widget.itemModel.copyWith(
+                            quantity: newQuantity,
                           );
-
-                          widget.ranchoViewModel.updateItem(novoItem);
+                          widget.viewModel.updateItem(updatedItem);
                         },
                       ),
                     ),
@@ -216,16 +210,14 @@ class _ItemCardState extends State<ItemCard> {
                       flex: 2,
                       child: TextFormField(
                         textAlign: TextAlign.center,
-                        controller: _precoController,
-                        focusNode: _precoFocusNode,
+                        controller: _priceController,
+                        focusNode: _priceFocusNode,
                         keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,
                         ),
-
                         decoration: InputDecoration(
                           border: InputBorder.none,
-                          label: Text('Preço'),
-
+                          label: Text('Price'),
                           floatingLabelAlignment: FloatingLabelAlignment.center,
                           alignLabelWithHint: true,
                           contentPadding: const EdgeInsets.symmetric(
@@ -234,21 +226,20 @@ class _ItemCardState extends State<ItemCard> {
                           ),
                         ),
                         onTap: () {
-                          _precoController.selection = TextSelection(
+                          _priceController.selection = TextSelection(
                             baseOffset: 0,
-                            extentOffset: _precoController.text.length,
+                            extentOffset: _priceController.text.length,
                           );
                         },
-
                         onFieldSubmitted: (value) {
-                          final novoPreco =
+                          final newPrice =
                               double.tryParse(value.replaceAll(',', '.')) ??
                               0.0;
 
-                          final novoItem = widget.itemModel.copyWith(
-                            preco: novoPreco,
+                          final updatedItem = widget.itemModel.copyWith(
+                            price: newPrice,
                           );
-                          widget.ranchoViewModel.updateItem(novoItem);
+                          widget.viewModel.updateItem(updatedItem);
                         },
                       ),
                     ),

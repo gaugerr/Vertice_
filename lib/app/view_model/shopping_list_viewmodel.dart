@@ -1,183 +1,172 @@
 import 'package:flutter/material.dart';
 import 'package:vertice/app/helpers/database_helper.dart';
-import 'package:vertice/app/model/categoria_model.dart';
+import 'package:vertice/app/model/category_model.dart';
 import 'package:vertice/app/model/item_model.dart';
 import 'package:vertice/app/model/shopping_list_model.dart';
 
 class ShoppingListViewModel extends ChangeNotifier {
-  final Map<int, List<ItemModel>> _itensAgrupados = {};
+  final Map<int, List<ItemModel>> _groupedItems = {};
   final List<ShoppingListModel> _shoppingLists = [];
   List<ShoppingListModel> get shoppingLists => _shoppingLists;
 
-  Future<void> adicionarRancho({
-    required String nomeMercado,
-    required DateTime data,
-    required String descricao,
+  Future<void> addShoppingList({
+    required String storeName,
+    required DateTime date,
+    required String description,
   }) async {
-    final rancho = ShoppingListModel(
-      id: null, //gerado automaticamente pelo autoincrement do sql
-      mercado: nomeMercado,
-      data: data,
-      categorias:
-          [], //gerado automaticamente, databaseHelper relaciona cada cat. com o id do rancho
-      descricao: descricao,
+    final shoppingList = ShoppingListModel(
+      id: null,
+      storeName: storeName,
+      date: date,
+      categories: [],
+      description: description,
     );
 
-    final idGerado = await DatabaseHelper.instance.criarNovoRanchoComCategorias(
-      rancho,
+    final generatedId =
+        await DatabaseHelper.instance.createShoppingListWithCategories(
+      shoppingList,
     );
 
-    final ranchoComId = rancho.copyWith(id: idGerado);
+    final shoppingListWithId = shoppingList.copyWith(id: generatedId);
 
-    bool jaExiste = _shoppingLists.any((item) => item.id == idGerado);
+    final alreadyExists = _shoppingLists.any((item) => item.id == generatedId);
 
-    if (!jaExiste) {
-      _shoppingLists.insert(0, ranchoComId);
-
+    if (!alreadyExists) {
+      _shoppingLists.insert(0, shoppingListWithId);
       notifyListeners();
     }
   }
 
-  Future<void> adicionarItem({
-    required categoria,
-    required nomeDigitado,
+  Future<void> addItem({
+    required category,
+    required itemName,
   }) async {
-    final itemByName = ItemModel(
-      nomeItem: nomeDigitado,
-      categoriaId: categoria.id!,
-      ranchoId: categoria.shoppingListId,
+    final item = ItemModel(
+      name: itemName,
+      categoryId: category.id!,
+      shoppingListId: category.shoppingListId,
     );
 
-    final idGerado = await DatabaseHelper.instance.insertItem(
-      itemByName,
-      categoria.id,
+    final generatedId = await DatabaseHelper.instance.insertItem(
+      item,
+      category.id,
     );
 
-    final itemComId = itemByName.copyWith(id: idGerado);
+    final itemWithId = item.copyWith(id: generatedId);
 
-    if (!_itensAgrupados.containsKey(itemComId.categoriaId)) {
-      _itensAgrupados[itemComId.categoriaId!] = [];
+    if (!_groupedItems.containsKey(itemWithId.categoryId)) {
+      _groupedItems[itemWithId.categoryId!] = [];
     }
 
-    _itensAgrupados[itemComId.categoriaId]!.add(itemComId);
+    _groupedItems[itemWithId.categoryId]!.add(itemWithId);
     notifyListeners();
   }
 
   Future<void> initializeShoppingLists() async {
-    final List<ShoppingListModel> shoppingListsGetter = await DatabaseHelper
-        .instance
-        .getAllRanchos();
+    final List<ShoppingListModel> fetchedLists =
+        await DatabaseHelper.instance.getAllShoppingLists();
 
     _shoppingLists.clear();
-    _shoppingLists.addAll(shoppingListsGetter);
+    _shoppingLists.addAll(fetchedLists);
     notifyListeners();
   }
 
-  Future<void> inicializarItensDoRancho(int ranchoId) async {
-    final List<ItemModel> listaDoBanco = await DatabaseHelper.instance
-        .getItensPorRancho(ranchoId);
+  Future<void> loadItemsForList(int shoppingListId) async {
+    final List<ItemModel> dbItems =
+        await DatabaseHelper.instance.getItemsByShoppingList(shoppingListId);
 
-    _itensAgrupados.clear();
+    _groupedItems.clear();
 
-    for (var item in listaDoBanco) {
-      final idCat = item.categoriaId;
+    for (var item in dbItems) {
+      final catId = item.categoryId;
 
-      if (!_itensAgrupados.containsKey(idCat)) {
-        _itensAgrupados[idCat!] = [];
+      if (!_groupedItems.containsKey(catId)) {
+        _groupedItems[catId!] = [];
       }
 
-      _itensAgrupados[idCat]!.add(item);
+      _groupedItems[catId]!.add(item);
     }
 
     notifyListeners();
   }
 
-  List<ItemModel> getItensDaCategoria(int categoriaId) {
-    return _itensAgrupados[categoriaId] ?? [];
+  List<ItemModel> getItemsByCategory(int categoryId) {
+    return _groupedItems[categoryId] ?? [];
   }
 
-  void atualizarItensNaMemoria(List<ItemModel> todosOsItens) {
-    _itensAgrupados.clear();
-    for (var item in todosOsItens) {
-      _itensAgrupados.putIfAbsent(item.categoriaId!, () => []).add(item);
+  void updateItemsInMemory(List<ItemModel> allItems) {
+    _groupedItems.clear();
+    for (var item in allItems) {
+      _groupedItems.putIfAbsent(item.categoryId!, () => []).add(item);
     }
     notifyListeners();
   }
 
-  List<String> getListaItens(CategoriaModel categoria) {
-    final itens = getItensDaCategoria(categoria.id!);
-
-    return itens.map((item) => item.nomeItem).toList();
+  List<String> getItemNames(CategoryModel category) {
+    final items = getItemsByCategory(category.id!);
+    return items.map((item) => item.name).toList();
   }
 
-  bool isCategoriaCompleta(CategoriaModel categoria) {
-    final itens = getItensDaCategoria(categoria.id!);
-    if (itens.isEmpty) return false;
-    return itens.every((item) => item.isComprado == true);
+  bool isCategoryComplete(CategoryModel category) {
+    final items = getItemsByCategory(category.id!);
+    if (items.isEmpty) return false;
+    return items.every((item) => item.isPurchased == true);
   }
 
-  double calcularTotalCategoria(CategoriaModel categoria) {
-    final itens = getItensDaCategoria(categoria.id!);
-    double totalCategoria = itens
-        .where((item) => item.isComprado)
-        .fold(0.0, (soma, item) => soma + calcularTotalItem(item));
-
-    return totalCategoria;
-  }
-
-  double calcularTotalRancho(ShoppingListModel rancho) {
-    double total = 0.0;
-    // Percorre cada "balde" (lista de itens) dentro do Mapa
-    for (var listaDeItens in _itensAgrupados.values) {
-      for (var item in listaDeItens) {
-        if (item.isComprado) {
-          // Soma: Preço * Quantidade
-          total += (item.preco * item.quantidade);
-        }
-      }
-    }
-
+  double calculateCategoryTotal(CategoryModel category) {
+    final items = getItemsByCategory(category.id!);
+    double total = items
+        .where((item) => item.isPurchased)
+        .fold(0.0, (sum, item) => sum + calculateItemTotal(item));
     return total;
   }
 
-  double calcularTotalItem(ItemModel item) {
-    if (item.unidade == 'un') {
-      return item.quantidade * item.preco;
+  double calculateListTotal(ShoppingListModel shoppingList) {
+    double total = 0.0;
+    for (var itemsList in _groupedItems.values) {
+      for (var item in itemsList) {
+        if (item.isPurchased) {
+          total += (item.price * item.quantity);
+        }
+      }
+    }
+    return total;
+  }
+
+  double calculateItemTotal(ItemModel item) {
+    if (item.unit == 'un') {
+      return item.quantity * item.price;
     } else {
-      return item.preco;
+      return item.price;
     }
   }
 
-  //função de updateItem completa, atualiza na memória (usuário vê a mudança instantâneamente) e depois atualiza no banco de dados em segundo plano
-  Future<void> updateItem(ItemModel itemNovo) async {
-    //atualiza na memória
-    final lista = _itensAgrupados[itemNovo.categoriaId];
-    if (lista != null) {
-      final index = lista.indexWhere((i) => i.id == itemNovo.id);
+  Future<void> updateItem(ItemModel updatedItem) async {
+    final list = _groupedItems[updatedItem.categoryId];
+    if (list != null) {
+      final index = list.indexWhere((i) => i.id == updatedItem.id);
       if (index != -1) {
-        lista[index] = itemNovo;
+        list[index] = updatedItem;
       }
     }
 
     notifyListeners();
     try {
-      await DatabaseHelper.instance.updateItem(itemNovo);
+      await DatabaseHelper.instance.updateItem(updatedItem);
     } catch (e) {
-      //todo implementar snack bar de erro e reverter ao item original
+      // TODO: show error snackbar and revert to original item
     }
   }
 
-  Future<void> updateBuyList(ShoppingListModel rancho) async {}
+  Future<void> updateShoppingList(ShoppingListModel shoppingList) async {}
 
   Future<void> deleteItem(ItemModel item) async {
-    //posição original do item
-    final lista = _itensAgrupados[item.categoriaId];
-    if (lista == null) return;
+    final list = _groupedItems[item.categoryId];
+    if (list == null) return;
 
-    final indexOriginal = lista.indexWhere((i) => i.id == item.id);
+    final originalIndex = list.indexWhere((i) => i.id == item.id);
 
-    //remove da tela NA HORA
-    lista.removeAt(indexOriginal);
+    list.removeAt(originalIndex);
     notifyListeners();
 
     try {
@@ -187,22 +176,16 @@ class ShoppingListViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> deleteBuyList(ShoppingListModel rancho) async {
-    // 1. Localiza o índice real comparando os IDs
-
-    final index = _shoppingLists.indexWhere((i) => i.id == rancho.id);
+  Future<void> deleteShoppingList(ShoppingListModel shoppingList) async {
+    final index = _shoppingLists.indexWhere((i) => i.id == shoppingList.id);
 
     if (index != -1) {
-      // 2. Remove da lista e guarda o backup (caso o banco falhe)
       final backup = _shoppingLists.removeAt(index);
-
-      // 3. O SEGREDO: notifyListeners() IMEDIATAMENTE após o removeAt
       notifyListeners();
 
       try {
-        await DatabaseHelper.instance.deleteRancho(rancho.id!);
+        await DatabaseHelper.instance.deleteShoppingList(shoppingList.id!);
       } catch (e) {
-        // 4. Se o banco der erro, devolvemos o item para a lista
         _shoppingLists.insert(index, backup);
         notifyListeners();
       }

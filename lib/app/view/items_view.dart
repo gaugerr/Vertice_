@@ -1,31 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:vertice/app/model/categoria_model.dart';
+import 'package:vertice/app/model/category_model.dart';
 import 'package:vertice/app/view_model/shopping_list_viewmodel.dart';
-import 'package:vertice/app/widgets/cards/itens.card.dart';
+import 'package:vertice/app/widgets/cards/item_card.dart';
 import 'package:vertice/app/widgets/list_view_builder.dart';
 
-class ItensView extends StatefulWidget {
-  final ShoppingListViewModel ranchoViewModel;
-  final CategoriaModel categoriaModel;
-  const ItensView({
+class ItemsView extends StatefulWidget {
+  final ShoppingListViewModel viewModel;
+  final CategoryModel category;
+  const ItemsView({
     super.key,
-    required this.categoriaModel,
-    required this.ranchoViewModel,
+    required this.category,
+    required this.viewModel,
   });
 
   @override
-  State<ItensView> createState() => _ItensViewState();
+  State<ItemsView> createState() => _ItemsViewState();
 }
 
-class _ItensViewState extends State<ItensView> {
+class _ItemsViewState extends State<ItemsView> {
   final _formKey = GlobalKey<FormState>();
-
-  final TextEditingController _nameItemController = TextEditingController();
+  final TextEditingController _itemNameController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
 
   @override
   void dispose() {
-    _nameItemController.dispose();
+    _itemNameController.dispose();
     _focusNode.dispose();
     super.dispose();
   }
@@ -34,27 +33,21 @@ class _ItensViewState extends State<ItensView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        centerTitle: true, // Centraliza para dar um ar mais limpo
-        title: Text(widget.categoriaModel.tituloCategoria),
-        // Removido o chip das actions para não cortar o título
+        centerTitle: true,
+        title: Text(widget.category.title),
       ),
-      // Adicionado o FAB centralizado com o total
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: ListenableBuilder(
-        listenable: widget.ranchoViewModel,
+        listenable: widget.viewModel,
         builder: (context, _) {
-          final total = widget.ranchoViewModel.calcularTotalCategoria(
-            widget.categoriaModel,
+          final total = widget.viewModel.calculateCategoryTotal(
+            widget.category,
           );
           return FloatingActionButton.extended(
             onPressed: null,
-            // Mantendo o fundo escuro que combina com seu app
             backgroundColor: Colors.black,
-            // AJUSTE AQUI: Mudando de bola para o seu estilo levemente arredondado
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(
-                10,
-              ), // Mesmo raio do seu código original
+              borderRadius: BorderRadius.circular(10),
               side: BorderSide(color: Colors.green.shade300, width: 1),
             ),
             label: Text(
@@ -76,18 +69,18 @@ class _ItensViewState extends State<ItensView> {
             Form(
               key: _formKey,
               child: TextFormField(
-                controller: _nameItemController,
+                controller: _itemNameController,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Digite um item';
+                    return 'Enter an item';
                   } else if (value.length > 50) {
-                    return 'O item não pode exceder 50 caracteres';
+                    return 'Item name cannot exceed 50 characters';
                   }
                   return null;
                 },
                 decoration: InputDecoration(
-                  hintText: 'Adicionar item',
+                  hintText: 'Add item',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
@@ -95,11 +88,11 @@ class _ItensViewState extends State<ItensView> {
                 focusNode: _focusNode,
                 onFieldSubmitted: (value) {
                   if (_formKey.currentState!.validate()) {
-                    widget.ranchoViewModel.adicionarItem(
-                      categoria: widget.categoriaModel,
-                      nomeDigitado: value.trim(),
+                    widget.viewModel.addItem(
+                      category: widget.category,
+                      itemName: value.trim(),
                     );
-                    _nameItemController.clear();
+                    _itemNameController.clear();
                     _formKey.currentState!.reset();
                     _focusNode.requestFocus();
                   }
@@ -108,18 +101,18 @@ class _ItensViewState extends State<ItensView> {
             ),
             Expanded(
               child: ListenableBuilder(
-                listenable: widget.ranchoViewModel,
+                listenable: widget.viewModel,
                 builder: (context, child) {
-                  final listaItens = widget.ranchoViewModel.getItensDaCategoria(
-                    widget.categoriaModel.id!,
+                  final items = widget.viewModel.getItemsByCategory(
+                    widget.category.id!,
                   );
                   return MyListViewBuilder(
-                    itemCount: listaItens.length,
+                    itemCount: items.length,
                     itemBuilder: (context, index) {
-                      final itemAtual = listaItens[index];
+                      final item = items[index];
                       return ItemCard(
-                        ranchoViewModel: widget.ranchoViewModel,
-                        itemModel: itemAtual,
+                        viewModel: widget.viewModel,
+                        itemModel: item,
                       );
                     },
                   );

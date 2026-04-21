@@ -3,71 +3,72 @@ import 'dart:convert';
 import 'package:flutter/widgets.dart';
 
 class ItemModel {
-  int? id; //banco deve gerar automaticamente esse id
-  String nomeItem;
-  double preco;
-  double quantidade;
-  String unidade;
-  bool isComprado;
-  int? categoriaId;
-  int? ranchoId; //futura chave pra ligar a categoria pertencente
+  int? id;
+  String name;
+  double price;
+  double quantity;
+  String unit;
+  bool isPurchased;
+  int? categoryId;
+  int? shoppingListId;
 
   ItemModel({
     this.id,
-    required this.nomeItem,
-    this.preco = 0.0,
-    this.quantidade = 1.0,
-    this.unidade = 'un',
-    this.isComprado = false,
-    this.categoriaId,
-    this.ranchoId,
+    required this.name,
+    this.price = 0.0,
+    this.quantity = 1.0,
+    this.unit = 'un',
+    this.isPurchased = false,
+    this.categoryId,
+    this.shoppingListId,
   });
 
   ItemModel copyWith({
     int? id,
-    String? nomeItem,
-    double? preco,
-    double? quantidade,
-    String? unidade,
-    bool? isComprado,
-    ValueGetter<int?>? categoriaId,
-    ValueGetter<int?>? ranchoId,
+    String? name,
+    double? price,
+    double? quantity,
+    String? unit,
+    bool? isPurchased,
+    ValueGetter<int?>? categoryId,
+    ValueGetter<int?>? shoppingListId,
   }) {
     return ItemModel(
       id: id ?? this.id,
-      nomeItem: nomeItem ?? this.nomeItem,
-      preco: preco ?? this.preco,
-      quantidade: quantidade ?? this.quantidade,
-      unidade: unidade ?? this.unidade,
-      isComprado: isComprado ?? this.isComprado,
-      categoriaId: categoriaId != null ? categoriaId() : this.categoriaId,
-      ranchoId: ranchoId != null ? ranchoId() : this.ranchoId,
+      name: name ?? this.name,
+      price: price ?? this.price,
+      quantity: quantity ?? this.quantity,
+      unit: unit ?? this.unit,
+      isPurchased: isPurchased ?? this.isPurchased,
+      categoryId: categoryId != null ? categoryId() : this.categoryId,
+      shoppingListId:
+          shoppingListId != null ? shoppingListId() : this.shoppingListId,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'nomeItem': nomeItem,
-      'preco': preco,
-      'quantidade': quantidade,
-      'unidade': unidade,
-      'isComprado': isComprado ? 1 : 0,
-      'categoriaId': categoriaId,
-      'shoppingListId': ranchoId,
+      'name': name,
+      'price': price,
+      'quantity': quantity,
+      'unit': unit,
+      'isPurchased': isPurchased ? 1 : 0,
+      'categoryId': categoryId,
+      'shoppingListId': shoppingListId,
     };
   }
 
   factory ItemModel.fromMap(Map<String, dynamic> map) {
     return ItemModel(
       id: map['id']?.toInt(),
-      nomeItem: map['nomeItem'] ?? '',
-      preco: map['preco']?.toDouble() ?? 0.0,
-      quantidade: map['quantidade']?.toDouble() ?? 0.0,
-      unidade: map['unidade'] ?? '',
-      isComprado: map['isComprado'] == 1,
-      categoriaId: map['categoriaId']?.toInt(),
-      ranchoId: map['shoppingListId']?.toInt(),
+      name: map['name'] ?? '',
+      price: map['price']?.toDouble() ?? 0.0,
+      quantity: map['quantity']?.toDouble() ?? 0.0,
+      unit: map['unit'] ?? '',
+      isPurchased: map['isPurchased'] == 1,
+      categoryId: map['categoryId']?.toInt(),
+      shoppingListId: map['shoppingListId']?.toInt(),
     );
   }
 
@@ -78,7 +79,7 @@ class ItemModel {
 
   @override
   String toString() {
-    return 'ItemModel(id: $id, nomeItem: $nomeItem, preco: $preco, quantidade: $quantidade, unidade: $unidade, isComprado: $isComprado, categoriaId: $categoriaId, ranchoId: $ranchoId)';
+    return 'ItemModel(id: $id, name: $name, price: $price, quantity: $quantity, unit: $unit, isPurchased: $isPurchased, categoryId: $categoryId, shoppingListId: $shoppingListId)';
   }
 
   @override
@@ -87,24 +88,24 @@ class ItemModel {
 
     return other is ItemModel &&
         other.id == id &&
-        other.nomeItem == nomeItem &&
-        other.preco == preco &&
-        other.quantidade == quantidade &&
-        other.unidade == unidade &&
-        other.isComprado == isComprado &&
-        other.categoriaId == categoriaId &&
-        other.ranchoId == ranchoId;
+        other.name == name &&
+        other.price == price &&
+        other.quantity == quantity &&
+        other.unit == unit &&
+        other.isPurchased == isPurchased &&
+        other.categoryId == categoryId &&
+        other.shoppingListId == shoppingListId;
   }
 
   @override
   int get hashCode {
     return id.hashCode ^
-        nomeItem.hashCode ^
-        preco.hashCode ^
-        quantidade.hashCode ^
-        unidade.hashCode ^
-        isComprado.hashCode ^
-        categoriaId.hashCode ^
-        ranchoId.hashCode;
+        name.hashCode ^
+        price.hashCode ^
+        quantity.hashCode ^
+        unit.hashCode ^
+        isPurchased.hashCode ^
+        categoryId.hashCode ^
+        shoppingListId.hashCode;
   }
 }

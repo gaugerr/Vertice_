@@ -2,56 +2,55 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 
-import 'categoria_model.dart';
+import 'category_model.dart';
 
 class ShoppingListModel {
   int? id;
-  String mercado;
-  DateTime data;
-  String descricao;
-  List<CategoriaModel> categorias;
+  String storeName;
+  DateTime date;
+  String description;
+  List<CategoryModel> categories;
 
   ShoppingListModel({
     this.id,
-    required this.mercado,
-    required this.data,
-    required this.descricao,
-    this.categorias = const [],
+    required this.storeName,
+    required this.date,
+    required this.description,
+    this.categories = const [],
   });
 
   ShoppingListModel copyWith({
     int? id,
-    String? mercado,
-    DateTime? data,
-    String? descricao,
-    List<CategoriaModel>? categorias,
+    String? storeName,
+    DateTime? date,
+    String? description,
+    List<CategoryModel>? categories,
   }) {
     return ShoppingListModel(
       id: id ?? this.id,
-      mercado: mercado ?? this.mercado,
-      data: data ?? this.data,
-      descricao: descricao ?? this.descricao,
-      categorias: categorias ?? this.categorias,
+      storeName: storeName ?? this.storeName,
+      date: date ?? this.date,
+      description: description ?? this.description,
+      categories: categories ?? this.categories,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'mercado': mercado,
-
-      'data': data.millisecondsSinceEpoch,
-      'descricao': descricao,
+      'storeName': storeName,
+      'date': date.millisecondsSinceEpoch,
+      'description': description,
     };
   }
 
   factory ShoppingListModel.fromMap(Map<String, dynamic> map) {
     return ShoppingListModel(
       id: map['id']?.toInt(),
-      mercado: map['mercado'] ?? '',
-      data: DateTime.fromMillisecondsSinceEpoch(map['data']),
-      descricao: map['descricao'] ?? '',
-      categorias: [],
+      storeName: map['storeName'] ?? '',
+      date: DateTime.fromMillisecondsSinceEpoch(map['date']),
+      description: map['description'] ?? '',
+      categories: [],
     );
   }
 
@@ -62,7 +61,7 @@ class ShoppingListModel {
 
   @override
   String toString() {
-    return 'ShoppingListModel(id: $id, mercado: $mercado, data: $data, descricao: $descricao, categorias: $categorias)';
+    return 'ShoppingListModel(id: $id, storeName: $storeName, date: $date, description: $description, categories: $categories)';
   }
 
   @override
@@ -71,18 +70,18 @@ class ShoppingListModel {
 
     return other is ShoppingListModel &&
         other.id == id &&
-        other.mercado == mercado &&
-        other.data == data &&
-        other.descricao == descricao &&
-        listEquals(other.categorias, categorias);
+        other.storeName == storeName &&
+        other.date == date &&
+        other.description == description &&
+        listEquals(other.categories, categories);
   }
 
   @override
   int get hashCode {
     return id.hashCode ^
-        mercado.hashCode ^
-        data.hashCode ^
-        descricao.hashCode ^
-        categorias.hashCode;
+        storeName.hashCode ^
+        date.hashCode ^
+        description.hashCode ^
+        categories.hashCode;
   }
 }

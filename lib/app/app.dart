@@ -13,13 +13,12 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
-  final ranchoViewModel = ShoppingListViewModel();
+  final viewModel = ShoppingListViewModel();
 
   @override
   void initState() {
     super.initState();
-
-    ranchoViewModel.initializeShoppingLists();
+    viewModel.initializeShoppingLists();
   }
 
   @override
@@ -46,27 +45,25 @@ class _AppState extends State<App> {
           onPressed: () {
             ShowBottomSheet.bottomSheet(
               context,
-              AddShoppingListForm(viewModel: ranchoViewModel),
+              AddShoppingListForm(viewModel: viewModel),
             );
           },
-
           label: Center(
             child: Text(
               'Criar nova lista de compras',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
           ),
-
           icon: Icon(Icons.add_shopping_cart_outlined),
         ),
       ),
 
       body: ListenableBuilder(
-        listenable: ranchoViewModel,
+        listenable: viewModel,
         builder: (context, child) {
-          final listas = ranchoViewModel.shoppingLists;
+          final lists = viewModel.shoppingLists;
 
-          if (listas.isEmpty) {
+          if (lists.isEmpty) {
             return const Center(
               child: Text(
                 'Nenhuma lista de compras criada!',
@@ -76,13 +73,13 @@ class _AppState extends State<App> {
           }
 
           return MyGridBuilder(
-            colunas: 1,
-            itemCount: listas.length,
+            columns: 1,
+            itemCount: lists.length,
             itemBuilder: (context, index) {
-              final rancho = listas[index];
+              final shoppingList = lists[index];
               return ShoppingListCard(
-                ranchoViewModel: ranchoViewModel,
-                rancho: rancho,
+                viewModel: viewModel,
+                shoppingList: shoppingList,
               );
             },
           );

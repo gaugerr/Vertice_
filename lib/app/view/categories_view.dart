@@ -1,34 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:vertice/app/helpers/database_helper.dart';
-import 'package:vertice/app/model/categoria_model.dart';
+import 'package:vertice/app/model/category_model.dart';
 import 'package:vertice/app/model/shopping_list_model.dart';
 import 'package:vertice/app/view_model/shopping_list_viewmodel.dart';
-import 'package:vertice/app/widgets/cards/categorias_card.dart';
+import 'package:vertice/app/widgets/cards/category_card.dart';
 import 'package:vertice/app/widgets/grid_builder.dart';
 
-class CategoriasView extends StatefulWidget {
-  final ShoppingListViewModel ranchoViewModel;
-  final ShoppingListModel ranchoModel;
-  const CategoriasView({
+class CategoriesView extends StatefulWidget {
+  final ShoppingListViewModel viewModel;
+  final ShoppingListModel shoppingList;
+  const CategoriesView({
     super.key,
-    required this.ranchoModel,
-    required this.ranchoViewModel,
+    required this.shoppingList,
+    required this.viewModel,
   });
 
   @override
-  State<CategoriasView> createState() => _CategoriasViewState();
+  State<CategoriesView> createState() => _CategoriesViewState();
 }
 
-class _CategoriasViewState extends State<CategoriasView> {
-  Future<List<CategoriaModel>>? _categoriasFuture;
+class _CategoriesViewState extends State<CategoriesView> {
+  Future<List<CategoryModel>>? _categoriesFuture;
 
   @override
   void initState() {
     super.initState();
-    _categoriasFuture = DatabaseHelper.instance.getCategoriasPorRancho(
-      widget.ranchoModel.id!,
+    _categoriesFuture = DatabaseHelper.instance.getCategoriesByShoppingList(
+      widget.shoppingList.id!,
     );
-    widget.ranchoViewModel.inicializarItensDoRancho(widget.ranchoModel.id!);
+    widget.viewModel.loadItemsForList(widget.shoppingList.id!);
   }
 
   @override
@@ -37,24 +37,22 @@ class _CategoriasViewState extends State<CategoriasView> {
       appBar: AppBar(
         centerTitle: true,
         title: Text(
-          widget.ranchoModel.mercado,
+          widget.shoppingList.storeName,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
 
-      // Definindo o local do FAB para o centro inferior
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: ListenableBuilder(
-        listenable: widget.ranchoViewModel,
+        listenable: widget.viewModel,
         builder: (context, _) {
-          final total = widget.ranchoViewModel.calcularTotalRancho(
-            widget.ranchoModel,
+          final total = widget.viewModel.calculateListTotal(
+            widget.shoppingList,
           );
 
           return FloatingActionButton.extended(
-            onPressed: null, // Apenas para exibição do valor
+            onPressed: null,
             backgroundColor: Colors.black,
-            // Estilo idêntico ao da tela de itens (levemente arredondado)
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
               side: BorderSide(color: Colors.green.shade300, width: 1),
@@ -73,29 +71,29 @@ class _CategoriasViewState extends State<CategoriasView> {
 
       body: Padding(
         padding: const EdgeInsets.only(top: 16.0),
-        child: FutureBuilder<List<CategoriaModel>>(
-          future: _categoriasFuture,
-          builder: (context, asyncSnapshot) {
-            if (asyncSnapshot.connectionState == ConnectionState.waiting) {
+        child: FutureBuilder<List<CategoryModel>>(
+          future: _categoriesFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
-            } else if (asyncSnapshot.hasError) {
+            } else if (snapshot.hasError) {
               return const Center(
-                child: Text('Erro de conexão com o banco de dados'),
+                child: Text('Database connection error'),
               );
             } else {
-              if (asyncSnapshot.data!.isEmpty) {
+              if (snapshot.data!.isEmpty) {
                 return const Center(
-                  child: Text('Nenhuma categoria de compras encontrada'),
+                  child: Text('No categories found'),
                 );
               }
               return MyGridBuilder(
-                colunas: 2,
-                itemCount: asyncSnapshot.data!.length,
+                columns: 2,
+                itemCount: snapshot.data!.length,
                 itemBuilder: (context, index) {
-                  final categorias = asyncSnapshot.data![index];
-                  return CategoriasCard(
-                    ranchoViewModel: widget.ranchoViewModel,
-                    categorias: categorias,
+                  final category = snapshot.data![index];
+                  return CategoryCard(
+                    viewModel: widget.viewModel,
+                    category: category,
                   );
                 },
               );

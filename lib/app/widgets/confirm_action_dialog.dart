@@ -32,7 +32,7 @@ class ConfirmActionDialog extends StatelessWidget {
         TextButton(
           onPressed: () async {
             Navigator.pop(context);
-            //callback pra executar algo ao confirmar
+            //callback to execute on confirmation
             onConfirm();
           },
           child: Text(
