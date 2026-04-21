@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:vertice/app/utils/utils.dart';
-import 'package:vertice/app/view_model/rancho_viewmodel.dart';
+import 'package:vertice/app/view_model/shopping_list_viewmodel.dart';
 
-class AddRanchoForms extends StatefulWidget {
+class AddShoppingListForm extends StatefulWidget {
   final ShoppingListViewModel viewModel;
 
-  const AddRanchoForms({super.key, required this.viewModel});
+  const AddShoppingListForm({super.key, required this.viewModel});
 
   @override
-  State<AddRanchoForms> createState() => _AddRanchoFormsState();
+  State<AddShoppingListForm> createState() => _AddShoppingListFormState();
 }
 
-class _AddRanchoFormsState extends State<AddRanchoForms> {
+class _AddShoppingListFormState extends State<AddShoppingListForm> {
   // Chave global para o formulário, essencial para acionar a validação
   final _formKey = GlobalKey<FormState>();
 

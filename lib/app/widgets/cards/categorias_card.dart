@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:vertice/app/model/categoria_model.dart';
 import 'package:vertice/app/view/itens_view.dart';
-import 'package:vertice/app/view_model/rancho_viewmodel.dart';
+import 'package:vertice/app/view_model/shopping_list_viewmodel.dart';
 
 class CategoriasCard extends StatelessWidget {
   final ShoppingListViewModel ranchoViewModel;

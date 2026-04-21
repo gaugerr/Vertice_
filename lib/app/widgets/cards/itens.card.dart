@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vertice/app/model/item_model.dart';
-import 'package:vertice/app/view_model/rancho_viewmodel.dart';
+import 'package:vertice/app/view_model/shopping_list_viewmodel.dart';
 import 'package:vertice/app/widgets/confirm_action_dialog.dart';
 import 'package:vertice/app/widgets/popup_menu_button.dart';
 import 'package:vertice/app/widgets/rename_action_dialog.dart';

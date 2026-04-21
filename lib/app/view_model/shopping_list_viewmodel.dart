@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vertice/app/helpers/database_helper.dart';
 import 'package:vertice/app/model/categoria_model.dart';
 import 'package:vertice/app/model/item_model.dart';
-import 'package:vertice/app/model/rancho_model.dart';
+import 'package:vertice/app/model/shopping_list_model.dart';
 
 class ShoppingListViewModel extends ChangeNotifier {
   final Map<int, List<ItemModel>> _itensAgrupados = {};

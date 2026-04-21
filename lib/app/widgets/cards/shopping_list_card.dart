@@ -1,16 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:vertice/app/model/rancho_model.dart';
+import 'package:vertice/app/model/shopping_list_model.dart';
 import 'package:vertice/app/view/categorias_view.dart';
-import 'package:vertice/app/view_model/rancho_viewmodel.dart';
+import 'package:vertice/app/view_model/shopping_list_viewmodel.dart';
 import 'package:vertice/app/widgets/confirm_action_dialog.dart';
 import 'package:vertice/app/widgets/popup_menu_button.dart';
 import 'package:vertice/app/widgets/rename_action_dialog.dart';
 
-class RanchoCard extends StatelessWidget {
+class ShoppingListCard extends StatelessWidget {
   final ShoppingListViewModel ranchoViewModel;
   final ShoppingListModel rancho;
-  const RanchoCard({
+  const ShoppingListCard({
     super.key,
     required this.rancho,
     required this.ranchoViewModel,

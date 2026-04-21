@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:vertice/app/helpers/database_helper.dart';
 import 'package:vertice/app/model/categoria_model.dart';
-import 'package:vertice/app/model/rancho_model.dart';
-import 'package:vertice/app/view_model/rancho_viewmodel.dart';
+import 'package:vertice/app/model/shopping_list_model.dart';
+import 'package:vertice/app/view_model/shopping_list_viewmodel.dart';
 import 'package:vertice/app/widgets/cards/categorias_card.dart';
 import 'package:vertice/app/widgets/grid_builder.dart';
 

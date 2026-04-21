@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:vertice/app/view/add_rancho_forms.dart';
-import 'package:vertice/app/view_model/rancho_viewmodel.dart';
+import 'package:vertice/app/view/add_shopping_list_form.dart';
+import 'package:vertice/app/view_model/shopping_list_viewmodel.dart';
 import 'package:vertice/app/widgets/bottom_sheet.dart';
-import 'package:vertice/app/widgets/cards/rancho_card.dart';
+import 'package:vertice/app/widgets/cards/shopping_list_card.dart';
 import 'package:vertice/app/widgets/grid_builder.dart';
 
 class App extends StatefulWidget {
@@ -46,7 +46,7 @@ class _AppState extends State<App> {
           onPressed: () {
             ShowBottomSheet.bottomSheet(
               context,
-              AddRanchoForms(viewModel: ranchoViewModel),
+              AddShoppingListForm(viewModel: ranchoViewModel),
             );
           },
 
@@ -80,7 +80,7 @@ class _AppState extends State<App> {
             itemCount: listas.length,
             itemBuilder: (context, index) {
               final rancho = listas[index];
-              return RanchoCard(
+              return ShoppingListCard(
                 ranchoViewModel: ranchoViewModel,
                 rancho: rancho,
               );
