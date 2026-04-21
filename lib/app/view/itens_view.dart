@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:rancho_consciente/app/model/categoria_model.dart';
-import 'package:rancho_consciente/app/view_model/rancho_viewmodel.dart';
-import 'package:rancho_consciente/app/widgets/cards/itens.card.dart';
-import 'package:rancho_consciente/app/widgets/list_view_builder.dart';
+import 'package:vertice/app/model/categoria_model.dart';
+import 'package:vertice/app/view_model/rancho_viewmodel.dart';
+import 'package:vertice/app/widgets/cards/itens.card.dart';
+import 'package:vertice/app/widgets/list_view_builder.dart';
 
 class ItensView extends StatefulWidget {
   final ShoppingListViewModel ranchoViewModel;

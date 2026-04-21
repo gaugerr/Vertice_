@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.rancho_consciente"
+    namespace = "com.ggaugerr.vertice"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973"
 

@@ -1,8 +1,8 @@
 import 'package:path/path.dart';
-import 'package:rancho_consciente/app/model/categoria_model.dart';
-import 'package:rancho_consciente/app/model/item_model.dart';
-import 'package:rancho_consciente/app/model/rancho_model.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:vertice/app/model/categoria_model.dart';
+import 'package:vertice/app/model/item_model.dart';
+import 'package:vertice/app/model/rancho_model.dart';
 
 class DatabaseHelper {
   // A. SINGLETON: Garante que exista apenas UMA instância dessa classe no app todo.

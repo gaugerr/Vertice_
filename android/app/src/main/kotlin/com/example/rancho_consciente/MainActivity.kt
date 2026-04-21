@@ -1,4 +1,4 @@
-package com.example.rancho_consciente
+package com.ggaugerr.vertice
 
 import io.flutter.embedding.android.FlutterActivity
 

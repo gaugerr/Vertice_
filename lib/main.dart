@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:rancho_consciente/app/app.dart';
+import 'package:vertice/app/app.dart';
 
 void main() {
   runApp(const MainApp());
@@ -11,7 +11,7 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Rancho Consciente',
+      title: 'Vértice',
       theme: ThemeData(
         useMaterial3: true,
         // Define o fundo do Scaffold como preto puro

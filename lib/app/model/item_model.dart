@@ -54,7 +54,7 @@ class ItemModel {
       'unidade': unidade,
       'isComprado': isComprado ? 1 : 0,
       'categoriaId': categoriaId,
-      'ranchoId': ranchoId,
+      'shoppingListId': ranchoId,
     };
   }
 
@@ -67,7 +67,7 @@ class ItemModel {
       unidade: map['unidade'] ?? '',
       isComprado: map['isComprado'] == 1,
       categoriaId: map['categoriaId']?.toInt(),
-      ranchoId: map['ranchoId']?.toInt(),
+      ranchoId: map['shoppingListId']?.toInt(),
     );
   }
 

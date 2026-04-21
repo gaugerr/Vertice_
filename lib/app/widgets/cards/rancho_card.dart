@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:rancho_consciente/app/model/rancho_model.dart';
-import 'package:rancho_consciente/app/view/categorias_view.dart';
-import 'package:rancho_consciente/app/view_model/rancho_viewmodel.dart';
-import 'package:rancho_consciente/app/widgets/confirm_action_dialog.dart';
-import 'package:rancho_consciente/app/widgets/popup_menu_button.dart';
-import 'package:rancho_consciente/app/widgets/rename_action_dialog.dart';
+import 'package:vertice/app/model/rancho_model.dart';
+import 'package:vertice/app/view/categorias_view.dart';
+import 'package:vertice/app/view_model/rancho_viewmodel.dart';
+import 'package:vertice/app/widgets/confirm_action_dialog.dart';
+import 'package:vertice/app/widgets/popup_menu_button.dart';
+import 'package:vertice/app/widgets/rename_action_dialog.dart';
 
 class RanchoCard extends StatelessWidget {
   final ShoppingListViewModel ranchoViewModel;

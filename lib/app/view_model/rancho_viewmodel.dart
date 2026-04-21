@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:rancho_consciente/app/helpers/database_helper.dart';
-import 'package:rancho_consciente/app/model/categoria_model.dart';
-import 'package:rancho_consciente/app/model/item_model.dart';
-import 'package:rancho_consciente/app/model/rancho_model.dart';
+import 'package:vertice/app/helpers/database_helper.dart';
+import 'package:vertice/app/model/categoria_model.dart';
+import 'package:vertice/app/model/item_model.dart';
+import 'package:vertice/app/model/rancho_model.dart';
 
 class ShoppingListViewModel extends ChangeNotifier {
   final Map<int, List<ItemModel>> _itensAgrupados = {};
@@ -45,7 +45,7 @@ class ShoppingListViewModel extends ChangeNotifier {
     final itemByName = ItemModel(
       nomeItem: nomeDigitado,
       categoriaId: categoria.id!,
-      ranchoId: categoria.ranchoId,
+      ranchoId: categoria.shoppingListId,
     );
 
     final idGerado = await DatabaseHelper.instance.insertItem(
