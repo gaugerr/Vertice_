@@ -27,12 +27,24 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _createDB,
+      onUpgrade: _upgradeDB,
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys = ON');
       },
     );
+  }
+
+  // Drops all tables and recreates them with the current schema.
+  // Triggered when the DB version is bumped (e.g. after column renames).
+  Future _upgradeDB(Database db, int oldVersion, int newVersion) async {
+    await db.execute('DROP TABLE IF EXISTS items');
+    await db.execute('DROP TABLE IF EXISTS categories');
+    await db.execute('DROP TABLE IF EXISTS categorias');
+    await db.execute('DROP TABLE IF EXISTS itens');
+    await db.execute('DROP TABLE IF EXISTS shoppingLists');
+    await _createDB(db, newVersion);
   }
 
   Future _createDB(Database db, int version) async {
