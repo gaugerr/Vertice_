@@ -154,7 +154,7 @@ flutter run
 ## 🧑‍💻 Autor
 
 **Gustavo Gauger**  
-[![GitHub](https://img.shields.io/badge/GitHub-ggaugerr-181717?style=flat-square&logo=github)](https://github.com/ggaugerr)
+[![GitHub](https://img.shields.io/badge/GitHub-gaugerr-181717?style=flat-square&logo=github)](https://github.com/gaugerr)
 
 ---
 
