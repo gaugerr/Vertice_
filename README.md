@@ -33,7 +33,7 @@
 
 ---
 
-## 📸 Screenshots
+## 📸 Demo
 
 <img src="gif/gif.gif" width="260" alt="Demonstração do Vértice" />
 
