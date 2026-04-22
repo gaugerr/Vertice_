@@ -7,7 +7,7 @@
 [![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev)
 [![SQLite](https://img.shields.io/badge/SQLite-sqflite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)](https://pub.dev/packages/sqflite)
-[![Status](https://img.shields.io/badge/Status-Em%20Desenvolvimento-orange?style=for-the-badge)](#)
+[![Status](https://img.shields.io/badge/Status-v1.0%20Beta-green?style=for-the-badge)](#)
 
 </div>
 
@@ -30,6 +30,23 @@
 | ✏️ **Edição In-line** | Renomeie ou exclua qualquer lista ou item diretamente |
 | 🌙 **Tema Escuro** | Interface dark com destaque em roxo |
 | 📱 **Offline First** | Todos os dados persistidos localmente via SQLite — sem internet |
+
+---
+
+## 🚀 Por que Vértice?
+ 
+**Fluidez Extrema**
+- ⚡ Otimizado para rodar fluido em qualquer dispositivo, do mais modesto ao topo de linha
+- 📉 Consumo mínimo de RAM — sem overhead desnecessário
+- ⚙️ Renderização nativa do Flutter garante 60fps constante
+**Privacidade Total**
+- 🔒 100% offline — seus dados nunca saem do seu celular
+- 🚫 Sem ads, sem tracking, sem cloud
+- 🔐 Dados armazenados localmente via SQLite
+**Interface Intuitiva**
+- 🎨 Dark mode nativo com design moderno
+- 👆 Edição rápida e in-line
+- 📊 Cálculos em tempo real
 
 ---
 
@@ -123,6 +140,23 @@ Todas as chaves estrangeiras usam `ON DELETE CASCADE` — ao excluir uma lista, 
 
 ---
 
+## 🎯 Desenvolvimento
+ 
+**v1.0** ✅ Stable — Funcionalidade core completa e estável
+ 
+**Em progresso** 🔄 Refatoração completa da arquitetura e otimizações
+ 
+Novas features serão adicionadas conforme necessário.
+ 
+---
+ 
+## 💳 Modelo de Monetização (futuro)
+ 
+**Freemium**
+- ✅ Versão gratuita completa com todas as features core
+- 💎 **Premium**: Compartilhamento de listas, análise de gastos, comparação retroativa de preços...
+- Assinatura opcional: R$9,90/mês ou R$33,90/ano
+
 ## 🚀 Como Rodar
 
 ### Pré-requisitos
@@ -146,9 +180,18 @@ cd vertice
 flutter pub get
 
 # Rode o app
-flutter run
+flutter run --profile
 ```
+> ⚠️ Recomendo conectar um celular Android (depuração usb ativada) via cabo na sua máquina, e rodar o app em modo profile, oque garante desempenho igual/semelhante a build de release.
 
+---
+ 
+## 📥 Download
+ 
+Google Play Store — *Em breve*
+ 
+App Store — *Sem Previsão*
+ 
 ---
 
 ## 🧑‍💻 Autor
