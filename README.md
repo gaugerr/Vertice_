@@ -138,6 +138,34 @@ shoppingLists (id, storeName, date, description)
 
 Todas as chaves estrangeiras usam `ON DELETE CASCADE` — ao excluir uma lista, todas as categorias e itens vinculados são removidos automaticamente.
 
+### Versão do banco e desenvolvimento
+
+O esquema atual usa a versão **2** como base. Instalações que já usam essa
+versão mantêm seus dados. Bancos experimentais anteriores são recusados sem
+apagar seus registros; nesses dispositivos de desenvolvimento, limpe os dados
+do aplicativo ou reinstale-o para criar o banco atual. Essa limpeza remove
+as compras salvas, portanto guarde antes qualquer informação necessária.
+
+Alterações futuras no esquema devem aumentar a versão e implementar migrações
+que preservem os dados. Não recrie as tabelas apagando os registros existentes.
+
+### Regra dos totais
+
+Somente itens marcados como comprados entram nos totais. Para `un`, o preço é
+por unidade e é multiplicado pela quantidade. Para `kg` e `L`, o preço é o
+valor final pago pela porção comprada, sem multiplicar novamente pela quantidade.
+Item, categoria e lista usam essa mesma regra.
+
+### Verificação automatizada
+
+```bash
+flutter analyze
+flutter test
+flutter build apk --debug
+```
+
+O GitHub Actions executa essas verificações nos pull requests e na branch `main`.
+
 ---
 
 ## 🎯 Desenvolvimento
