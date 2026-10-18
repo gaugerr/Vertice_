@@ -22,10 +22,8 @@ class ShoppingListViewModel extends ChangeNotifier {
       description: description,
     );
 
-    final generatedId =
-        await DatabaseHelper.instance.createShoppingListWithCategories(
-      shoppingList,
-    );
+    final generatedId = await DatabaseHelper.instance
+        .createShoppingListWithCategories(shoppingList);
 
     final shoppingListWithId = shoppingList.copyWith(id: generatedId);
 
@@ -37,10 +35,7 @@ class ShoppingListViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> addItem({
-    required category,
-    required itemName,
-  }) async {
+  Future<void> addItem({required category, required itemName}) async {
     final item = ItemModel(
       name: itemName,
       categoryId: category.id!,
@@ -63,8 +58,8 @@ class ShoppingListViewModel extends ChangeNotifier {
   }
 
   Future<void> initializeShoppingLists() async {
-    final List<ShoppingListModel> fetchedLists =
-        await DatabaseHelper.instance.getAllShoppingLists();
+    final List<ShoppingListModel> fetchedLists = await DatabaseHelper.instance
+        .getAllShoppingLists();
 
     _shoppingLists.clear();
     _shoppingLists.addAll(fetchedLists);
@@ -72,8 +67,8 @@ class ShoppingListViewModel extends ChangeNotifier {
   }
 
   Future<void> loadItemsForList(int shoppingListId) async {
-    final List<ItemModel> dbItems =
-        await DatabaseHelper.instance.getItemsByShoppingList(shoppingListId);
+    final List<ItemModel> dbItems = await DatabaseHelper.instance
+        .getItemsByShoppingList(shoppingListId);
 
     _groupedItems.clear();
 
@@ -125,8 +120,8 @@ class ShoppingListViewModel extends ChangeNotifier {
     double total = 0.0;
     for (var itemsList in _groupedItems.values) {
       for (var item in itemsList) {
-        if (item.isPurchased) {
-          total += (item.price * item.quantity);
+        if (item.isPurchased && item.shoppingListId == shoppingList.id) {
+          total += calculateItemTotal(item);
         }
       }
     }
@@ -134,6 +129,7 @@ class ShoppingListViewModel extends ChangeNotifier {
   }
 
   double calculateItemTotal(ItemModel item) {
+    // For kg/L, price is the final amount paid for the measured portion.
     if (item.unit == 'un') {
       return item.quantity * item.price;
     } else {
