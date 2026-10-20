@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../platform/pwa_status.dart';
 import 'package:vertice/app/model/category_model.dart';
 import 'package:vertice/app/view_model/shopping_list_viewmodel.dart';
 import 'package:vertice/app/widgets/cards/item_card.dart';
@@ -33,6 +34,7 @@ class _ItemsViewState extends State<ItemsView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: const PwaStatus(),
       appBar: AppBar(
         centerTitle: true,
         title: Text(widget.category.title),
