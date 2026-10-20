@@ -5,7 +5,7 @@ if ! command -v flutter >/dev/null; then
   if [ ! -x "$task_sdk_dir/flutter/bin/flutter" ]; then
     mkdir -p "$task_sdk_dir"
     curl --fail --location --retry 3 --max-time 300 \
-      https://storage.googleapis.com/flutter_infra_release/flutter/3.32.8/linux/flutter_linux_3.32.8-stable.tar.xz \
+      https://storage.googleapis.com/flutter_infra_release/flutter/stable/linux/flutter_linux_3.32.8-stable.tar.xz \
       --output "$task_sdk_dir/flutter.tar.xz"
     tar -xf "$task_sdk_dir/flutter.tar.xz" -C "$task_sdk_dir"
     rm "$task_sdk_dir/flutter.tar.xz"
