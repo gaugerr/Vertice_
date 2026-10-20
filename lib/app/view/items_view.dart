@@ -24,6 +24,19 @@ class _ItemsViewState extends State<ItemsView> {
   final TextEditingController _itemNameController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
 
+  Future<void> _submitItem() async {
+    if (_adding || !_formKey.currentState!.validate()) return;
+    final name = _itemNameController.text.trim();
+    setState(() => _adding = true);
+    final saved = await widget.viewModel.addItem(category: widget.category, itemName: name);
+    if (!mounted) return;
+    setState(() => _adding = false);
+    if (!saved) return;
+    _itemNameController.clear();
+    _formKey.currentState!.reset();
+    _focusNode.requestFocus();
+  }
+
   @override
   void dispose() {
     _itemNameController.dispose();
@@ -85,26 +98,17 @@ class _ItemsViewState extends State<ItemsView> {
                 },
                 decoration: InputDecoration(
                   labelText: 'Adicionar item',
+                  suffixIcon: IconButton(
+                    tooltip: 'Adicionar item',
+                    onPressed: _adding ? null : _submitItem,
+                    icon: const Icon(Icons.add_circle_outline),
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
                 ),
                 focusNode: _focusNode,
-                onFieldSubmitted: (value) async {
-                  if (_formKey.currentState!.validate()) {
-                    setState(() => _adding = true);
-                    final saved = await widget.viewModel.addItem(
-                      category: widget.category,
-                      itemName: value.trim(),
-                    );
-                    if (!mounted) return;
-                    setState(() => _adding = false);
-                    if (!saved) return;
-                    _itemNameController.clear();
-                    _formKey.currentState!.reset();
-                    _focusNode.requestFocus();
-                  }
-                },
+                onFieldSubmitted: (_) => _submitItem(),
               ),
             ),
             Expanded(
