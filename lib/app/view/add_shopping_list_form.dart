@@ -106,14 +106,14 @@ class _AddShoppingListFormState extends State<AddShoppingListForm> {
                   elevation: 6,
                   backgroundColor: Colors.deepPurpleAccent,
                 ),
-                onPressed: () {
+                onPressed: () async {
                   if (_formKey.currentState!.validate()) {
-                    widget.viewModel.addShoppingList(
+                    final saved = await widget.viewModel.addShoppingList(
                       storeName: _nameController.text.trim(),
                       date: AppUtils.parseDate(_dateController.text),
                       description: _descriptionController.text.trim(),
                     );
-                    Navigator.pop(context);
+                    if (saved && context.mounted) Navigator.pop(context);
                   }
                 },
                 child: Text('Create', style: TextStyle(color: Colors.white)),
