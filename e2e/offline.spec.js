@@ -33,14 +33,17 @@ test('installable shell, backup, CRUD and persistence with the network disabled'
   await expect(page.getByText('Total: R$ 40.00', {exact: true}).first()).toBeVisible();
 
   await page.waitForFunction(() => window.verticeOfflineReady === true && !!navigator.serviceWorker.controller);
+  await expect.poll(() => page.evaluate(() => window.verticeOnline)).toBe(true);
   await context.setOffline(true);
   await page.getByRole('textbox', {name: 'Adicionar item', exact: true}).fill('Feijão offline');
   await page.getByRole('textbox', {name: 'Adicionar item', exact: true}).press('Enter');
   await expect(visibleText(page, 'Feijão offline')).toBeVisible();
   await page.close();
   const reopened = await context.newPage();
+  await context.setOffline(true);
   reopened.on('pageerror', error => errors.push(error.message));
   await reopened.goto('/');
+  expect(await reopened.evaluate(() => fetch('/online.txt?check=offline', {cache: 'no-store'}).then(() => true, () => false))).toBe(false);
   await expect(visibleText(reopened, 'Offline · dados salvos neste aparelho')).toBeVisible();
   await reopened.locator('[flt-semantics-identifier="list-1"]').click();
   await reopened.locator('[flt-semantics-identifier="category-1"]').click();
