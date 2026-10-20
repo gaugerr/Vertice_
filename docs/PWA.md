@@ -35,6 +35,10 @@ A atualização aguarda confirmação do usuário ou fechamento das abas antigas
 
 ## Testes
 
+Validação aprovada na [execução 39356623863](https://github.com/gaugerr/Vertice_/actions/runs/39356623863), commit `d8684cbe`: 11 testes Dart, análise e build web, mais o fluxo completo no Chromium. O teste confirmou bloqueio real da rede, criação offline, fechamento da aba, reabertura e valores recuperados pelo backup exportado.
+
+[Baixar o pacote compilado vertice-pwa-28](https://github.com/gaugerr/Vertice_/actions/runs/39356623863/artifacts/12235627758). Este ZIP contém os arquivos estáticos; precisa de hospedagem HTTP/HTTPS e dos cabeçalhos indicados abaixo, não deve ser aberto diretamente como arquivo local.
+
 - Suíte Dart original e novos testes de CRUD, backup, restauração atômica e validação.
 - Playwright Chromium: restauração pela interface, alteração de quantidade, criação offline, fechamento da aba, reabertura sem rede e exportação dos registros persistidos.
 - Resultado real disponível no workflow "PWA build and offline checks". A existência deste arquivo não comprova que a execução passou.
