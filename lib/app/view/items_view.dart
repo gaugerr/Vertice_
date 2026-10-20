@@ -82,7 +82,8 @@ class _ItemsViewState extends State<ItemsView> {
                   return null;
                 },
                 decoration: InputDecoration(
-                  hintText: 'Add item',
+                  labelText: 'Adicionar item',
+                  hintText: 'Ex.: arroz',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
@@ -132,3 +133,4 @@ class _ItemsViewState extends State<ItemsView> {
     );
   }
 }
+
