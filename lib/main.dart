@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:vertice/app/app.dart';
-import 'app/platform/pwa_status.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,13 +42,10 @@ class MainApp extends StatelessWidget {
         ),
       ),
 
-      builder: (context, child) => Column(children: [
-        const PwaStatus(),
-        Expanded(child: Center(child: ConstrainedBox(
+      builder: (context, child) => Center(child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1000),
           child: child ?? const SizedBox.shrink(),
-        ))),
-      ]),
+        )),
       home: const App(),
     );
   }
