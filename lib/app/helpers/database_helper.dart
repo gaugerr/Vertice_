@@ -150,13 +150,13 @@ class DatabaseHelper {
 
   // INSERT SHOPPING LIST — inserts and returns the generated ID
   Future<int> insertShoppingList(ShoppingListModel shoppingList) async {
-    final db = await instance.database;
+    final db = await database;
     return await db.insert('shoppingLists', shoppingList.toMap());
   }
 
   // INSERT CATEGORY — inserts a category linked to a shopping list
   Future<int> insertCategory(CategoryModel category, int shoppingListId) async {
-    final db = await instance.database;
+    final db = await database;
     final map = category.toMap();
     map['shoppingListId'] = shoppingListId;
     return await db.insert('categories', map);
@@ -180,14 +180,14 @@ class DatabaseHelper {
 
   // GET ALL SHOPPING LISTS
   Future<List<ShoppingListModel>> getAllShoppingLists() async {
-    final db = await instance.database;
+    final db = await database;
     final result = await db.query('shoppingLists');
     return result.map((json) => ShoppingListModel.fromMap(json)).toList();
   }
 
   // GET SHOPPING LIST BY ID
   Future<ShoppingListModel?> getShoppingListById(int id) async {
-    final db = await instance.database;
+    final db = await database;
     final maps = await db.query(
       'shoppingLists',
       columns: ['id', 'storeName', 'date', 'description'],
@@ -206,7 +206,7 @@ class DatabaseHelper {
   Future<List<CategoryModel>> getCategoriesByShoppingList(
     int shoppingListId,
   ) async {
-    final db = await instance.database;
+    final db = await database;
     final result = await db.query(
       'categories',
       where: 'shoppingListId = ?',
@@ -217,7 +217,7 @@ class DatabaseHelper {
 
   // GET ITEMS FOR A CATEGORY
   Future<List<ItemModel>> getItemsByCategory(int categoryId) async {
-    final db = await instance.database;
+    final db = await database;
     final result = await db.query(
       'items',
       where: 'categoryId = ?',
@@ -229,7 +229,7 @@ class DatabaseHelper {
 
   // GET ALL ITEMS FOR A SHOPPING LIST
   Future<List<ItemModel>> getItemsByShoppingList(int shoppingListId) async {
-    final db = await instance.database;
+    final db = await database;
     final result = await db.query(
       'items',
       where: 'shoppingListId = ?',
@@ -240,7 +240,7 @@ class DatabaseHelper {
 
   // UPDATE ITEM
   Future<int> updateItem(ItemModel item) async {
-    final db = await instance.database;
+    final db = await database;
     return await db.update(
       'items',
       item.toMap(),
@@ -256,19 +256,19 @@ class DatabaseHelper {
 
   // DELETE ITEM
   Future<int> deleteItem(int id) async {
-    final db = await instance.database;
+    final db = await database;
     return await db.delete('items', where: 'id = ?', whereArgs: [id]);
   }
 
   // DELETE SHOPPING LIST
   Future<int> deleteShoppingList(int id) async {
-    final db = await instance.database;
+    final db = await database;
     return await db.delete('shoppingLists', where: 'id = ?', whereArgs: [id]);
   }
 
   // INSERT ITEM
   Future<int> insertItem(ItemModel item, int categoryId) async {
-    final db = await instance.database;
+    final db = await database;
     final map = item.toMap();
     map['categoryId'] = categoryId;
     final id = await db.insert('items', map);
