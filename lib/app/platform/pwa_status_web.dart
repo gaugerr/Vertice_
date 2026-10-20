@@ -4,6 +4,8 @@ import 'package:web/web.dart' as web;
 
 @JS('verticeOfflineReady')
 external JSBoolean? get _offlineReady;
+@JS('verticeOnline')
+external JSBoolean? get _networkOnline;
 @JS('verticeUpdateReady')
 external JSBoolean? get _updateReady;
 @JS('verticeInstallReady')
@@ -35,7 +37,7 @@ class _PwaStatusState extends State<PwaStatus> {
   }
   @override
   Widget build(BuildContext context) {
-    final online = web.window.navigator.onLine;
+    final online = _networkOnline?.toDart ?? web.window.navigator.onLine;
     final ready = _offlineReady?.toDart ?? false;
     final update = _updateReady?.toDart ?? false;
     final install = _installReady?.toDart ?? false;
