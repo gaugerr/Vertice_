@@ -43,3 +43,12 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+assets/fonts/Roboto-Regular.ttf
+web/sqlite3.wasm
+web/drift_worker.dart.js
+web/icons/vertice-*.png
+node_modules/
+playwright-report/
+test-results/
+
