@@ -1,3 +1,5 @@
+> **Versão PWA nesta branch:** Flutter Web com banco local, instalação, cache offline e backup JSON. Consulte [as instruções e a validação da versão web](docs/PWA.md). A publicação na Vercel aguarda acesso da conexão à equipe.
+
 <div align="center">
 
 # 🛒 Vértice
@@ -165,7 +167,7 @@ Novas features serão adicionadas conforme necessário.
 - Dart `^3.0`
 - **Dispositivo Android físico ou emulador Android**
 
-> ⚠️ O banco de dados local (`sqflite`) **não é compatível com Windows/Linux/Web desktop**. O app deve ser rodado em Android (emulador ou dispositivo real).
+> Nesta branch, Android usa `sqflite` e a versão web usa Drift/SQLite WASM. Para executar o PWA, siga [docs/PWA.md](docs/PWA.md). Apps desktop não foram validados.
 
 ### Instalação
 
