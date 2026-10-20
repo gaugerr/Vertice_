@@ -1,0 +1,17 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "echo Flutter build",
+  "buildCommand": "bash tool/build_web.sh",
+  "outputDirectory": "build/web",
+  "headers": [
+    {"source": "/(.*)", "headers": [
+      {"key": "Cross-Origin-Opener-Policy", "value": "same-origin"},
+      {"key": "Cross-Origin-Embedder-Policy", "value": "require-corp"},
+      {"key": "X-Content-Type-Options", "value": "nosniff"},
+      {"key": "Cache-Control", "value": "public, max-age=0, must-revalidate"}
+    ]},
+    {"source": "/sqlite3.wasm", "headers": [{"key": "Content-Type", "value": "application/wasm"}]},
+    {"source": "/service-worker.js", "headers": [{"key": "Cache-Control", "value": "no-store"}]}
+  ]
+}
