@@ -41,7 +41,7 @@ class _PwaStatusState extends State<PwaStatus> {
     final install = _installReady?.toDart ?? false;
     return Material(
       color: const Color(0xFF191325),
-      child: SafeArea(bottom: false, child: Padding(
+      child: SafeArea(top: false, child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
         child: Row(children: [
           Icon(online ? Icons.check_circle_outline : Icons.wifi_off, size: 16, color: online ? Colors.greenAccent : Colors.amber),
