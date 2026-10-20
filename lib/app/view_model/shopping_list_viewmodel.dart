@@ -5,25 +5,58 @@ import 'package:vertice/app/model/item_model.dart';
 import 'package:vertice/app/model/shopping_list_model.dart';
 
 class ShoppingListViewModel extends ChangeNotifier {
+  ShoppingListViewModel({DatabaseHelper? databaseHelper})
+      : _db = databaseHelper ?? DatabaseHelper.instance;
+  final DatabaseHelper _db;
+  String? errorMessage;
+  Future<void> _pending = Future<void>.value();
+
+  // Serialize writes and never publish an uncommitted change.
+  Future<bool> _write(Future<void> Function() action) {
+    final result = _pending.then((_) async {
+      try {
+        await action();
+        errorMessage = null;
+        notifyListeners();
+        return true;
+      } catch (error) {
+        errorMessage = error is ArgumentError
+            ? 'Confira o nome, preço e quantidade informados.'
+            : 'Não foi possível salvar. A alteração não foi aplicada. Tente novamente.';
+        notifyListeners();
+        return false;
+      }
+    });
+    _pending = result.then<void>((_) {});
+    return result;
+  }
+
+  void _validateName(String name) {
+    if (name.trim().isEmpty || name.trim().length > 50) {
+      throw ArgumentError('Invalid name');
+    }
+  }
+
   final Map<int, List<ItemModel>> _groupedItems = {};
   final List<ShoppingListModel> _shoppingLists = [];
   List<ShoppingListModel> get shoppingLists => _shoppingLists;
 
-  Future<void> addShoppingList({
+  Future<bool> addShoppingList({
     required String storeName,
     required DateTime date,
     required String description,
-  }) async {
+  }) => _write(() async {
+    _validateName(storeName);
     final shoppingList = ShoppingListModel(
       id: null,
-      storeName: storeName,
+      storeName: storeName.trim(),
       date: date,
       categories: [],
       description: description,
     );
 
     final generatedId =
-        await DatabaseHelper.instance.createShoppingListWithCategories(
+        await _db.createShoppingListWithCategories(
       shoppingList,
     );
 
@@ -35,19 +68,20 @@ class ShoppingListViewModel extends ChangeNotifier {
       _shoppingLists.insert(0, shoppingListWithId);
       notifyListeners();
     }
-  }
+  });
 
-  Future<void> addItem({
+  Future<bool> addItem({
     required category,
     required itemName,
-  }) async {
+  }) => _write(() async {
+    _validateName(itemName as String);
     final item = ItemModel(
-      name: itemName,
+      name: (itemName as String).trim(),
       categoryId: category.id!,
       shoppingListId: category.shoppingListId,
     );
 
-    final generatedId = await DatabaseHelper.instance.insertItem(
+    final generatedId = await _db.insertItem(
       item,
       category.id,
     );
@@ -60,11 +94,11 @@ class ShoppingListViewModel extends ChangeNotifier {
 
     _groupedItems[itemWithId.categoryId]!.add(itemWithId);
     notifyListeners();
-  }
+  });
 
   Future<void> initializeShoppingLists() async {
     final List<ShoppingListModel> fetchedLists =
-        await DatabaseHelper.instance.getAllShoppingLists();
+        await _db.getAllShoppingLists();
 
     _shoppingLists.clear();
     _shoppingLists.addAll(fetchedLists);
@@ -73,7 +107,7 @@ class ShoppingListViewModel extends ChangeNotifier {
 
   Future<void> loadItemsForList(int shoppingListId) async {
     final List<ItemModel> dbItems =
-        await DatabaseHelper.instance.getItemsByShoppingList(shoppingListId);
+        await _db.getItemsByShoppingList(shoppingListId);
 
     _groupedItems.clear();
 
@@ -113,82 +147,51 @@ class ShoppingListViewModel extends ChangeNotifier {
     return items.every((item) => item.isPurchased == true);
   }
 
-  double calculateCategoryTotal(CategoryModel category) {
-    final items = getItemsByCategory(category.id!);
-    double total = items
-        .where((item) => item.isPurchased)
-        .fold(0.0, (sum, item) => sum + calculateItemTotal(item));
-    return total;
-  }
+  int _itemCents(ItemModel item) => (item.price * item.quantity * 100).round();
 
-  double calculateListTotal(ShoppingListModel shoppingList) {
-    double total = 0.0;
-    for (var itemsList in _groupedItems.values) {
-      for (var item in itemsList) {
-        if (item.isPurchased) {
-          total += (item.price * item.quantity);
-        }
-      }
+  double calculateCategoryTotal(CategoryModel category) =>
+      getItemsByCategory(category.id!).where((item) => item.isPurchased)
+          .fold<int>(0, (sum, item) => sum + _itemCents(item)) / 100;
+
+  double calculateListTotal(ShoppingListModel shoppingList) =>
+      _groupedItems.values.expand((items) => items)
+          .where((item) => item.isPurchased && item.shoppingListId == shoppingList.id)
+          .fold<int>(0, (sum, item) => sum + _itemCents(item)) / 100;
+
+  double calculateItemTotal(ItemModel item) => _itemCents(item) / 100;
+
+  Future<bool> updateItem(ItemModel updatedItem) => _write(() async {
+    _validateName(updatedItem.name);
+    if (!updatedItem.price.isFinite || updatedItem.price < 0 ||
+        !updatedItem.quantity.isFinite || updatedItem.quantity <= 0 ||
+        !['un', 'kg', 'L'].contains(updatedItem.unit)) {
+      throw ArgumentError('Invalid price or quantity');
     }
-    return total;
-  }
+    final saved = updatedItem.copyWith(name: updatedItem.name.trim());
+    if (await _db.updateItem(saved) != 1) throw StateError('Item not found');
+    final list = _groupedItems[saved.categoryId];
+    final index = list?.indexWhere((item) => item.id == saved.id) ?? -1;
+    if (index >= 0) list![index] = saved;
+  });
 
-  double calculateItemTotal(ItemModel item) {
-    if (item.unit == 'un') {
-      return item.quantity * item.price;
-    } else {
-      return item.price;
+  Future<bool> updateShoppingList(ShoppingListModel shoppingList) => _write(() async {
+    _validateName(shoppingList.storeName);
+    final saved = shoppingList.copyWith(storeName: shoppingList.storeName.trim());
+    if (await _db.updateShoppingList(saved) != 1) throw StateError('List not found');
+    final index = _shoppingLists.indexWhere((list) => list.id == saved.id);
+    if (index >= 0) _shoppingLists[index] = saved;
+  });
+
+  Future<bool> deleteItem(ItemModel item) => _write(() async {
+    if (await _db.deleteItem(item.id!) != 1) throw StateError('Item not found');
+    _groupedItems[item.categoryId]?.removeWhere((entry) => entry.id == item.id);
+  });
+
+  Future<bool> deleteShoppingList(ShoppingListModel shoppingList) => _write(() async {
+    if (await _db.deleteShoppingList(shoppingList.id!) != 1) throw StateError('List not found');
+    _shoppingLists.removeWhere((list) => list.id == shoppingList.id);
+    for (final items in _groupedItems.values) {
+      items.removeWhere((item) => item.shoppingListId == shoppingList.id);
     }
-  }
-
-  Future<void> updateItem(ItemModel updatedItem) async {
-    final list = _groupedItems[updatedItem.categoryId];
-    if (list != null) {
-      final index = list.indexWhere((i) => i.id == updatedItem.id);
-      if (index != -1) {
-        list[index] = updatedItem;
-      }
-    }
-
-    notifyListeners();
-    try {
-      await DatabaseHelper.instance.updateItem(updatedItem);
-    } catch (e) {
-      // TODO: show error snackbar and revert to original item
-    }
-  }
-
-  Future<void> updateShoppingList(ShoppingListModel shoppingList) async {}
-
-  Future<void> deleteItem(ItemModel item) async {
-    final list = _groupedItems[item.categoryId];
-    if (list == null) return;
-
-    final originalIndex = list.indexWhere((i) => i.id == item.id);
-
-    list.removeAt(originalIndex);
-    notifyListeners();
-
-    try {
-      await DatabaseHelper.instance.deleteItem(item.id!);
-    } catch (e) {
-      //
-    }
-  }
-
-  Future<void> deleteShoppingList(ShoppingListModel shoppingList) async {
-    final index = _shoppingLists.indexWhere((i) => i.id == shoppingList.id);
-
-    if (index != -1) {
-      final backup = _shoppingLists.removeAt(index);
-      notifyListeners();
-
-      try {
-        await DatabaseHelper.instance.deleteShoppingList(shoppingList.id!);
-      } catch (e) {
-        _shoppingLists.insert(index, backup);
-        notifyListeners();
-      }
-    }
-  }
+  });
 }
