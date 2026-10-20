@@ -15,7 +15,7 @@ class CategoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListenableBuilder(
+    return Semantics(identifier: 'category-${category.id}', container: true, child: ListenableBuilder(
       listenable: viewModel,
       child: Padding(
         padding: const EdgeInsets.all(14.0),
@@ -111,6 +111,7 @@ class CategoryCard extends StatelessWidget {
           ),
         );
       },
-    );
+    ));
   }
 }
+
