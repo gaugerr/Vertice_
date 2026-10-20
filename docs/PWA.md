@@ -1,4 +1,4 @@
-# Vértice PWA — primeira versão local
+# Vértice PWA — versão publicada
 
 Branch: `feat/pwa`, baseada na versão estabilizada que gerou o APK profile. A main não foi alterada.
 
@@ -50,7 +50,15 @@ Validação aprovada na [execução 39356623863](https://github.com/gaugerr/Vert
 
 A origem a publicar é a branch `feat/pwa`, não a main atual. Ao importar no painel, selecionar essa branch (ou definir a Production Branch nas configurações Git) e conferir os comandos acima. A build baixa uma versão fixa do Flutter em /tmp. Não precisa configurar chaves nem banco remoto nesta etapa.
 
-A conexão do assistente retornou 403 para criação de projeto na equipe gaugerrs-projects. Nenhum projeto novo foi criado por essa tentativa. A publicação depende de acesso válido à equipe ou da configuração pelo próprio titular no painel. Não é necessário fornecer tokens no chat.
+Publicado em **https://vertice-gamma-khaki.vercel.app** no projeto `vertice`, equipe `gaugerrs-projects`, a partir do commit `d74d5333` da branch `feat/pwa`. Deployment de produção: `dpl_3BHo2Dpq72qYKJ5TgQLBMeJagoBT`, status READY. A main continua sem alterações.
+
+A [verificação do site publicado](https://github.com/gaugerr/Vertice_/actions/runs/39358969273) passou: acesso público HTTPS, cabeçalhos COOP/COEP, MIME de SQLite WASM, manifesto, service worker e o mesmo fluxo completo de persistência offline no Chromium. A [suíte do código](https://github.com/gaugerr/Vertice_/actions/runs/39358969307) também passou.
+
+O script baixa o arquivo oficial do Flutter 3.32.8 e confere seu SHA-256 antes de extrair. Não requer chaves de backend.
+
+A publicação de produção foi feita explicitamente a partir dessa branch. O projeto foi importado originalmente com `main`; para automatizar futuras publicações desta etapa, definir **Settings → Git → Production Branch** como `feat/pwa` no painel da Vercel, ou continuar publicando explicitamente a branch/commit correto. Não publicar a main atual como PWA.
+
+A conexão permite criar e consultar deployments, mas a consulta detalhada de logs pela integração retornou 403. Isso não impediu a compilação nem a verificação pública pelo GitHub Actions.
 
 ## Próximas etapas comerciais
 
