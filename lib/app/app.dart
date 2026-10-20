@@ -18,7 +18,25 @@ class _AppState extends State<App> {
   @override
   void initState() {
     super.initState();
+    viewModel.addListener(_showSaveError);
     viewModel.initializeShoppingLists();
+  }
+
+  void _showSaveError() {
+    final message = viewModel.errorMessage;
+    if (message == null) return;
+    viewModel.errorMessage = null;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    });
+  }
+
+  @override
+  void dispose() {
+    viewModel.removeListener(_showSaveError);
+    viewModel.dispose();
+    super.dispose();
   }
 
   @override
