@@ -15,7 +15,8 @@ Future<void> saveBackupFile(String text) async {
 Future<String?> pickBackupFile() {
   final result = Completer<String?>();
   final input = web.HTMLInputElement()..type = 'file'..accept = '.json,application/json';
-  input.addEventListener('change', ((web.Event _) async {
+  input.addEventListener('change', ((web.Event _) {
+    unawaited(() async {
     try {
       final files = input.files;
       if (files == null || files.length == 0) { result.complete(null); return; }
@@ -23,6 +24,7 @@ Future<String?> pickBackupFile() {
       if (file.size > 10000000) throw const FormatException('Backup maior que 10 MB.');
       result.complete((await file.text().toDart).toDart);
     } catch (error, stack) { result.completeError(error, stack); }
+    }());
   }).toJS);
   input.addEventListener('cancel', ((web.Event _) { if (!result.isCompleted) result.complete(null); }).toJS);
   input.click();
