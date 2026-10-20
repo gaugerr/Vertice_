@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:vertice/app/helpers/database_helper.dart';
+import '../data/shopping_repository.dart';
+import '../data/shopping_backup.dart';
+import '../data/repository_factory.dart';
 import 'package:vertice/app/model/category_model.dart';
 import 'package:vertice/app/model/item_model.dart';
 import 'package:vertice/app/model/shopping_list_model.dart';
 
 class ShoppingListViewModel extends ChangeNotifier {
-  ShoppingListViewModel({DatabaseHelper? databaseHelper})
-      : _db = databaseHelper ?? DatabaseHelper.instance;
-  final DatabaseHelper _db;
+  ShoppingListViewModel({ShoppingRepository? repository, ShoppingRepository? databaseHelper})
+      : _db = repository ?? databaseHelper ?? createRepository();
+  final ShoppingRepository _db;
+  bool isLoading = true;
+  String? loadError;
   String? errorMessage;
   Future<void> _pending = Future<void>.value();
 
@@ -71,12 +75,12 @@ class ShoppingListViewModel extends ChangeNotifier {
   });
 
   Future<bool> addItem({
-    required category,
-    required itemName,
+    required CategoryModel category,
+    required String itemName,
   }) => _write(() async {
-    _validateName(itemName as String);
+    _validateName(itemName);
     final item = ItemModel(
-      name: (itemName as String).trim(),
+      name: itemName.trim(),
       categoryId: category.id!,
       shoppingListId: category.shoppingListId,
     );
@@ -97,13 +101,33 @@ class ShoppingListViewModel extends ChangeNotifier {
   });
 
   Future<void> initializeShoppingLists() async {
-    final List<ShoppingListModel> fetchedLists =
-        await _db.getAllShoppingLists();
-
-    _shoppingLists.clear();
-    _shoppingLists.addAll(fetchedLists);
+    isLoading = true;
+    loadError = null;
     notifyListeners();
+    try {
+      final lists = await _db.getAllShoppingLists();
+      _shoppingLists..clear()..addAll(lists);
+    } catch (_) {
+      loadError = 'Não foi possível abrir os dados locais. Confira se o navegador está atualizado e permite armazenamento, fora do modo privado.';
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
   }
+
+  Future<List<CategoryModel>> getCategoriesForList(int id) => _db.getCategoriesByShoppingList(id);
+
+  Future<String> exportBackup() async {
+    await _pending;
+    return (await _db.exportBackup()).encode();
+  }
+
+  Future<bool> restoreBackup(String source) => _write(() async {
+    final backup = ShoppingBackup.parse(source);
+    await _db.restoreBackup(backup);
+    _groupedItems.clear();
+    _shoppingLists..clear()..addAll(await _db.getAllShoppingLists());
+  });
 
   Future<void> loadItemsForList(int shoppingListId) async {
     final List<ItemModel> dbItems =
@@ -195,3 +219,4 @@ class ShoppingListViewModel extends ChangeNotifier {
     }
   });
 }
+
