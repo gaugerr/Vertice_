@@ -8,245 +8,135 @@ import 'package:vertice/app/widgets/rename_action_dialog.dart';
 class ItemCard extends StatefulWidget {
   final ShoppingListViewModel viewModel;
   final ItemModel itemModel;
-  const ItemCard({
-    super.key,
-    required this.itemModel,
-    required this.viewModel,
-  });
-
+  const ItemCard({super.key, required this.itemModel, required this.viewModel});
   @override
   State<ItemCard> createState() => _ItemCardState();
 }
 
 class _ItemCardState extends State<ItemCard> {
-  final _formKey = GlobalKey<FormState>();
+  final _quantity = TextEditingController();
+  final _price = TextEditingController();
+  final _name = TextEditingController();
+  bool _saving = false;
 
-  final TextEditingController _quantityController = TextEditingController();
-  final TextEditingController _priceController = TextEditingController();
-  final TextEditingController _renamedItem = TextEditingController();
-
-  final FocusNode _priceFocusNode = FocusNode();
+  void _restore() {
+    _quantity.text = widget.itemModel.quantity.toString();
+    _price.text = widget.itemModel.price.toStringAsFixed(2);
+    _name.text = widget.itemModel.name;
+  }
 
   @override
   void initState() {
     super.initState();
+    _restore();
+  }
 
-    _priceFocusNode.addListener(() {
-      if (_priceFocusNode.hasFocus) {
-        _priceController.selection = TextSelection(
-          baseOffset: 0,
-          extentOffset: _priceController.text.length,
-        );
-      }
+  Future<void> _save(ItemModel item) async {
+    if (_saving) return;
+    setState(() => _saving = true);
+    final saved = await widget.viewModel.updateItem(item);
+    if (!mounted) return;
+    setState(() {
+      _saving = false;
+      if (!saved) _restore();
     });
+  }
 
-    _quantityController.text = widget.itemModel.quantity.toString();
-    _priceController.text = widget.itemModel.price.toStringAsFixed(2);
-    _renamedItem.text = widget.itemModel.name.toString();
+  Future<void> _saveNumbers() async {
+    if (_saving) return;
+    final quantity = double.tryParse(_quantity.text.replaceAll(',', '.'));
+    final price = double.tryParse(_price.text.replaceAll(',', '.'));
+    if (quantity == null || !quantity.isFinite || quantity <= 0 ||
+        price == null || !price.isFinite || price < 0) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Informe quantidade maior que zero e preço não negativo.'),
+      ));
+      _restore();
+      return;
+    }
+    if (quantity == widget.itemModel.quantity && price == widget.itemModel.price) return;
+    await _save(widget.itemModel.copyWith(quantity: quantity, price: price));
   }
 
   @override
   void dispose() {
-    _quantityController.dispose();
-    _priceController.dispose();
-    _priceFocusNode.dispose();
-    _renamedItem.dispose();
+    _quantity.dispose();
+    _price.dispose();
+    _name.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final item = widget.itemModel;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(8),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Row(
-              children: [
-                Checkbox(
-                  visualDensity: VisualDensity.compact,
-                  value: widget.itemModel.isPurchased,
-                  onChanged: (bool? value) {
-                    final updatedItem = widget.itemModel.copyWith(
-                      isPurchased: !widget.itemModel.isPurchased,
-                    );
-                    widget.viewModel.updateItem(updatedItem);
-                  },
-                ),
-                SizedBox(width: 10),
-                Text(
-                  widget.itemModel.name,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    decoration: widget.itemModel.isPurchased
-                        ? TextDecoration.lineThrough
-                        : TextDecoration.none,
-                  ),
-                ),
-                Spacer(),
-
-                if (widget.itemModel.isPurchased) ...[
-                  Text(
-                    'Total: R\$ ${widget.viewModel.calculateItemTotal(widget.itemModel).toStringAsFixed(2)}',
-                  ),
-                  SizedBox(width: 10),
-                ],
-
-                CustomPopupMenuButton(
+            Row(children: [
+              Checkbox(
+                value: item.isPurchased,
+                onChanged: _saving ? null : (value) => _save(item.copyWith(isPurchased: value)),
+              ),
+              Expanded(child: Text(item.name, style: TextStyle(
+                fontSize: 18, fontWeight: FontWeight.bold,
+                decoration: item.isPurchased ? TextDecoration.lineThrough : null,
+              ))),
+              if (item.isPurchased)
+                Text('Total: R\$ ${widget.viewModel.calculateItemTotal(item).toStringAsFixed(2)}'),
+              IgnorePointer(
+                ignoring: _saving,
+                child: CustomPopupMenuButton(
+                  excludeLabel: 'Delete', renameLabel: 'Rename',
                   onExcludePressed: () => showDialog(
                     context: context,
-                    builder: (BuildContext context) {
-                      return ConfirmActionDialog(
-                        title: 'Delete item?',
-                        description:
-                            "Remove '${widget.itemModel.name}' from the list?",
-                        cancelActionLabel: 'CANCEL',
-                        confirmActionLabel: 'DELETE',
-                        onConfirm: () async {
-                          await widget.viewModel.deleteItem(
-                            widget.itemModel,
-                          );
-                        },
-                        confirmColor: Colors.red,
-                      );
-                    },
+                    builder: (_) => ConfirmActionDialog(
+                      title: 'Delete item?', description: "Remove '${item.name}'?",
+                      cancelActionLabel: 'CANCEL', confirmActionLabel: 'DELETE',
+                      confirmColor: Colors.red,
+                      onConfirm: () { widget.viewModel.deleteItem(item); },
+                    ),
                   ),
-                  onRenamePressed: () => showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return RenameActionDialog(
-                        renamedController: _renamedItem,
-                        title: 'Rename Item',
-                        validatorErrorEmpty: 'Please enter a name',
-                        validatorErrorMaximumLength:
-                            'Name cannot exceed 50 characters',
-                        cancelActionLabel: 'CANCEL',
-                        confirmActionLabel: 'SAVE',
-                        onConfirm: (newName) async {
-                          final updatedItem = widget.itemModel.copyWith(
-                            name: newName,
-                          );
-                          await widget.viewModel.updateItem(updatedItem);
-                        },
-                      );
-                    },
-                  ),
-                  excludeLabel: 'Delete',
-                  renameLabel: 'Rename',
+                  onRenamePressed: () {
+                    _name.text = item.name;
+                    showDialog(context: context, builder: (_) => RenameActionDialog(
+                      renamedController: _name, title: 'Rename Item',
+                      validatorErrorEmpty: 'Please enter a name',
+                      validatorErrorMaximumLength: 'Maximum 50 characters',
+                      cancelActionLabel: 'CANCEL', confirmActionLabel: 'SAVE',
+                      onConfirm: (name) { _save(item.copyWith(name: name.trim())); },
+                    ));
+                  },
                 ),
-              ],
-            ),
-
-            Form(
-              key: _formKey,
-              child: Row(
-                children: [
-                  if (widget.itemModel.isPurchased) ...[
-                    Expanded(
-                      flex: 3,
-                      child: DropdownButtonFormField<String>(
-                        value: widget.itemModel.unit,
-                        decoration: const InputDecoration(
-                          labelText: 'Unit',
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                        ),
-                        items: ['un', 'kg', 'L'].map((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          if (value != null && value.isNotEmpty) {
-                            final updatedItem = widget.itemModel.copyWith(
-                              unit: value,
-                            );
-                            widget.viewModel.updateItem(updatedItem);
-                          }
-                        },
-                      ),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: TextFormField(
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                        controller: _quantityController,
-                        textInputAction: TextInputAction.next,
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          label: Text('Quantity'),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                        ),
-                        onTap: () {
-                          _quantityController.selection = TextSelection(
-                            baseOffset: 0,
-                            extentOffset: _quantityController.text.length,
-                          );
-                        },
-                        onChanged: (value) {
-                          final newQuantity =
-                              double.tryParse(value.replaceAll(',', '.')) ??
-                              0.0;
-
-                          final updatedItem = widget.itemModel.copyWith(
-                            quantity: newQuantity,
-                          );
-                          widget.viewModel.updateItem(updatedItem);
-                        },
-                      ),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: TextFormField(
-                        textAlign: TextAlign.center,
-                        controller: _priceController,
-                        focusNode: _priceFocusNode,
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          label: Text('Price'),
-                          floatingLabelAlignment: FloatingLabelAlignment.center,
-                          alignLabelWithHint: true,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                        ),
-                        onTap: () {
-                          _priceController.selection = TextSelection(
-                            baseOffset: 0,
-                            extentOffset: _priceController.text.length,
-                          );
-                        },
-                        onFieldSubmitted: (value) {
-                          final newPrice =
-                              double.tryParse(value.replaceAll(',', '.')) ??
-                              0.0;
-
-                          final updatedItem = widget.itemModel.copyWith(
-                            price: newPrice,
-                          );
-                          widget.viewModel.updateItem(updatedItem);
-                        },
-                      ),
-                    ),
-                  ],
-                ],
               ),
-            ),
+            ]),
+            if (item.isPurchased) Row(children: [
+              Expanded(child: DropdownButtonFormField<String>(
+                value: item.unit,
+                decoration: const InputDecoration(labelText: 'Unit'),
+                items: ['un', 'kg', 'L'].map((unit) =>
+                  DropdownMenuItem(value: unit, child: Text(unit))).toList(),
+                onChanged: _saving ? null : (unit) {
+                  if (unit != null) _save(item.copyWith(unit: unit));
+                },
+              )),
+              Expanded(child: TextField(
+                controller: _quantity, enabled: !_saving,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                decoration: const InputDecoration(labelText: 'Quantity'),
+                onSubmitted: (_) => _saveNumbers(),
+                onTapOutside: (_) { _saveNumbers(); FocusScope.of(context).unfocus(); },
+              )),
+              Expanded(child: TextField(
+                controller: _price, enabled: !_saving,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                decoration: InputDecoration(labelText: 'Price / ${item.unit}'),
+                onSubmitted: (_) => _saveNumbers(),
+                onTapOutside: (_) { _saveNumbers(); FocusScope.of(context).unfocus(); },
+              )),
+            ]),
           ],
         ),
       ),
