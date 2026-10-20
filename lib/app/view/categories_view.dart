@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:vertice/app/helpers/database_helper.dart';
 import 'package:vertice/app/model/category_model.dart';
 import 'package:vertice/app/model/shopping_list_model.dart';
 import 'package:vertice/app/view_model/shopping_list_viewmodel.dart';
@@ -25,7 +24,7 @@ class _CategoriesViewState extends State<CategoriesView> {
   @override
   void initState() {
     super.initState();
-    _categoriesFuture = DatabaseHelper.instance.getCategoriesByShoppingList(
+    _categoriesFuture = widget.viewModel.getCategoriesForList(
       widget.shoppingList.id!,
     );
     widget.viewModel.loadItemsForList(widget.shoppingList.id!);
@@ -104,3 +103,4 @@ class _CategoriesViewState extends State<CategoriesView> {
     );
   }
 }
+
