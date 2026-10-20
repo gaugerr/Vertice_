@@ -85,7 +85,6 @@ class _ItemsViewState extends State<ItemsView> {
                 },
                 decoration: InputDecoration(
                   labelText: 'Adicionar item',
-                  hintText: 'Ex.: arroz',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
