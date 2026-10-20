@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:vertice/app/app.dart';
+import 'app/platform/pwa_status.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  // Keep web controls accessible to assistive technology and browser testing.
+  SemanticsBinding.instance.ensureSemantics();
   runApp(const MainApp());
 }
 
@@ -14,6 +19,7 @@ class MainApp extends StatelessWidget {
       title: 'Vértice',
       theme: ThemeData(
         useMaterial3: true,
+        fontFamily: 'Vertice',
         // Define o fundo do Scaffold como preto puro
         scaffoldBackgroundColor: Colors.black,
 
@@ -37,7 +43,15 @@ class MainApp extends StatelessWidget {
         ),
       ),
 
-      home: App(),
+      builder: (context, child) => Column(children: [
+        const PwaStatus(),
+        Expanded(child: Center(child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1000),
+          child: child ?? const SizedBox.shrink(),
+        ))),
+      ]),
+      home: const App(),
     );
   }
 }
+
