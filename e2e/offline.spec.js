@@ -49,7 +49,8 @@ test('installable shell, backup, CRUD and persistence with the network disabled'
   await reopened.locator('[flt-semantics-identifier="list-1"]').click();
   await reopened.locator('[flt-semantics-identifier="category-1"]').click();
   await expect(visibleText(reopened, 'Feijão offline')).toBeVisible();
-  await expect(reopened.getByRole('textbox', {name: 'Quantity', exact: true})).toHaveValue('2.0');
+  // Flutter's inactive semantics input is a proxy, not the editing controller.
+  // Check the displayed total here and the actual persisted quantity in the exported backup below.
   await expect(reopened.getByText('Total: R$ 40.00', {exact: true}).first()).toBeVisible();
 
   // A reload at the home screen also stays offline. Export verifies the actual persisted rows.
