@@ -1,7 +1,37 @@
 window.verticeOfflineReady = false;
 window.verticeUpdateReady = false;
 window.verticeInstallReady = false;
+window.verticeOnline = navigator.onLine;
 const changed = () => window.dispatchEvent(new Event('vertice-pwa-changed'));
+let connectivityRequest;
+async function checkConnectivity() {
+  connectivityRequest?.abort();
+  const request = new AbortController();
+  connectivityRequest = request;
+  const timeout = setTimeout(() => request.abort(), 4000);
+  let online = false;
+  try {
+    const url = new URL('online.txt', document.baseURI);
+    url.searchParams.set('t', Date.now());
+    online = (await fetch(url, {cache: 'no-store', signal: request.signal})).ok;
+  } catch (_) { /* Offline is a normal state. All data stays local. */ }
+  finally { clearTimeout(timeout); }
+  if (connectivityRequest !== request) return;
+  if (window.verticeOnline !== online) {
+    window.verticeOnline = online;
+    changed();
+  }
+}
+window.addEventListener('offline', () => { window.verticeOnline = false; changed(); });
+window.addEventListener('online', checkConnectivity);
+window.addEventListener('focus', checkConnectivity);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') checkConnectivity();
+});
+setInterval(() => {
+  if (document.visibilityState === 'visible') checkConnectivity();
+}, 60000);
+checkConnectivity();
 let registration;
 let installPrompt;
 let reloading = false;
