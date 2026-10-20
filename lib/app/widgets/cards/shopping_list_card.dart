@@ -18,7 +18,7 @@ class ShoppingListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return Semantics(identifier: 'list-${shoppingList.id}', container: true, child: Card(
       color: Theme.of(context).colorScheme.surface,
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
@@ -113,6 +113,7 @@ class ShoppingListCard extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ));
   }
 }
+
