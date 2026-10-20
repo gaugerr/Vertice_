@@ -29,8 +29,8 @@ test('installable shell, backup, CRUD and persistence with the network disabled'
 
   await page.waitForFunction(() => window.verticeOfflineReady === true && !!navigator.serviceWorker.controller);
   await context.setOffline(true);
-  await page.getByRole('textbox', {name: 'Add item', exact: true}).fill('Feijão offline');
-  await page.getByRole('textbox', {name: 'Add item', exact: true}).press('Enter');
+  await page.getByRole('textbox', {name: 'Adicionar item', exact: true}).fill('Feijão offline');
+  await page.getByRole('textbox', {name: 'Adicionar item', exact: true}).press('Enter');
   await expect(page.getByText('Feijão offline', {exact: true})).toBeVisible();
   await page.close();
   const reopened = await context.newPage();
