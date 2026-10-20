@@ -6,6 +6,22 @@ function visibleText(page, value) {
     .or(page.locator(`[aria-label*=${JSON.stringify(value)}]`)).first();
 }
 
+// Flutter activates its DOM editing element on a semantics frame after focus.
+// Wait for that handoff, then for the controller update before submitting.
+async function settleFlutter(page) {
+  await page.evaluate(() => new Promise(resolve => {
+    requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+  }));
+}
+async function fillFlutterField(page, field, value) {
+  await field.click();
+  await expect(field).toBeFocused();
+  await settleFlutter(page);
+  await field.fill(value);
+  await settleFlutter(page);
+  await expect(field).toHaveValue(value);
+}
+
 const sample = {
   format: 'vertice-backup', version: 1,
   lists: [{id: 1, storeName: 'Mercado offline', date: 1792454400000, description: 'Teste PWA'}],
@@ -19,7 +35,7 @@ test('installable shell, backup, CRUD and persistence with the network disabled'
   await page.goto('/');
   await expect(page.getByRole('button', {name: 'Backup e restauração'})).toBeVisible();
   await page.getByRole('button', {name: 'Backup e restauração'}).click();
-  await page.getByRole('textbox', {name: 'Conteúdo do backup'}).fill(JSON.stringify(sample));
+  await fillFlutterField(page, page.getByRole('textbox', {name: 'Conteúdo do backup'}), JSON.stringify(sample));
   await page.getByRole('button', {name: 'Restaurar', exact: true}).click();
   await page.getByRole('button', {name: 'Substituir', exact: true}).click();
   await expect(page.getByText('Backup restaurado.', {exact: true})).toBeVisible();
@@ -28,15 +44,14 @@ test('installable shell, backup, CRUD and persistence with the network disabled'
   await page.locator('[flt-semantics-identifier="list-1"]').click();
   await page.locator('[flt-semantics-identifier="category-1"]').click();
   await expect(page.getByText('Total: R$ 10.00', {exact: true}).first()).toBeVisible();
-  await page.getByRole('textbox', {name: 'Quantity', exact: true}).fill('2');
+  await fillFlutterField(page, page.getByRole('textbox', {name: 'Quantity', exact: true}), '2');
   await page.getByRole('textbox', {name: 'Quantity', exact: true}).press('Enter');
   await expect(page.getByText('Total: R$ 40.00', {exact: true}).first()).toBeVisible();
 
   await page.waitForFunction(() => window.verticeOfflineReady === true && !!navigator.serviceWorker.controller);
   await expect.poll(() => page.evaluate(() => window.verticeOnline)).toBe(true);
   await context.setOffline(true);
-  await page.getByRole('textbox', {name: 'Adicionar item', exact: true}).click();
-  await page.keyboard.insertText('Feijão offline');
+  await fillFlutterField(page, page.getByRole('textbox', {name: 'Adicionar item', exact: true}), 'Feijão offline');
   await page.getByRole('button', {name: 'Adicionar item', exact: true}).click();
   await expect(visibleText(page, 'Feijão offline')).toBeVisible();
   await page.close();
