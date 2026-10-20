@@ -1,0 +1,6 @@
+{
+  "name": "vertice-pwa-checks",
+  "private": true,
+  "scripts": {"test:pwa": "playwright test"},
+  "devDependencies": {"@playwright/test": "1.56.1"}
+}
