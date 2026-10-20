@@ -1,0 +1,64 @@
+name: Android test APK
+
+on:
+  push:
+    branches: [fix/base-confiavel-pwa]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-test-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.32.8'
+          channel: stable
+          cache: true
+      - name: Install dependencies
+        run: flutter pub get
+      - name: Isolate test installation from production
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          gradle = Path("android/app/build.gradle.kts")
+          text = gradle.read_text()
+          original = 'applicationId = "com.ggaugerr.vertice"'
+          if text.count(original) != 1:
+              raise SystemExit("Unexpected applicationId: review test isolation before building")
+          gradle.write_text(text.replace(original, 'applicationId = "com.ggaugerr.vertice.preview"'))
+          manifest = Path("android/app/src/main/AndroidManifest.xml")
+          text = manifest.read_text()
+          import re
+          text, count = re.subn(r'android:label="[^"]*"', 'android:label="Vertice Teste"', text, count=1)
+          if count != 1:
+              raise SystemExit("Application label not found")
+          manifest.write_text(text)
+          PY
+      - name: Run tests when present
+        run: |
+          if [ -d test ]; then
+            flutter test
+          else
+            echo "No Flutter test suite exists yet; this build does not validate behavior."
+          fi
+      - name: Build test APK
+        run: flutter build apk --debug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vertice-teste-${{ github.run_number }}
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
