@@ -1,35 +1,27 @@
 {
-	"name": "vértice",
-	"short_name": "vértice",
-	"start_url": ".",
-	"display": "standalone",
-	"background_color": "#0175C2",
-	"theme_color": "#0175C2",
-	"description": "A new Flutter project.",
-	"orientation": "portrait-primary",
-	"prefer_related_applications": false,
-	"icons": [
-		{
-			"src": "icons/Icon-192.png",
-			"sizes": "192x192",
-			"type": "image/png"
-		},
-		{
-			"src": "icons/Icon-512.png",
-			"sizes": "512x512",
-			"type": "image/png"
-		},
-		{
-			"src": "icons/Icon-maskable-192.png",
-			"sizes": "192x192",
-			"type": "image/png",
-			"purpose": "maskable"
-		},
-		{
-			"src": "icons/Icon-maskable-512.png",
-			"sizes": "512x512",
-			"type": "image/png",
-			"purpose": "maskable"
-		}
-	]
+  "id": "/",
+  "name": "Vértice · Lista de compras",
+  "short_name": "Vértice",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#121018",
+  "description": "Organize compras e acompanhe gastos, mesmo sem internet.",
+  "lang": "pt-BR",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "icons/vertice-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/vertice-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
 }
