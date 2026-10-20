@@ -54,3 +54,14 @@ test('installable shell, backup, CRUD and persistence with the network disabled'
   expect(exported.items.find(item => item.name === 'Arroz').quantity).toBe(2);
   expect(errors).toEqual([]);
 });
+
+// Keep accessible DOM diagnostics in CI when a browser check fails.
+test.afterEach(async ({context}, info) => {
+  if (info.status === info.expectedStatus) return;
+  const current = context.pages().at(-1);
+  if (!current) return;
+  console.log('SEMANTICS:', JSON.stringify(await current.locator('flt-semantics,input,textarea').evaluateAll(nodes => nodes.map(node => ({
+    tag: node.tagName, role: node.getAttribute('role'), label: node.getAttribute('aria-label'),
+    identifier: node.getAttribute('flt-semantics-identifier'), text: node.textContent?.slice(0, 120),
+  })))));
+});
