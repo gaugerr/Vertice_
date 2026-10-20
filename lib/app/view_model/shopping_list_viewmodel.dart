@@ -70,7 +70,6 @@ class ShoppingListViewModel extends ChangeNotifier {
 
     if (!alreadyExists) {
       _shoppingLists.insert(0, shoppingListWithId);
-      notifyListeners();
     }
   });
 
@@ -97,7 +96,6 @@ class ShoppingListViewModel extends ChangeNotifier {
     }
 
     _groupedItems[itemWithId.categoryId]!.add(itemWithId);
-    notifyListeners();
   });
 
   Future<void> initializeShoppingLists() async {

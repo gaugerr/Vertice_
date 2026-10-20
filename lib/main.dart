@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:vertice/app/app.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  // Keep web controls accessible to assistive technology and browser testing.
-  SemanticsBinding.instance.ensureSemantics();
+  // Let Flutter activate accessibility when assistive technology requests it.
+  // Browser tests enable it through Flutter's accessibility placeholder.
   runApp(const MainApp());
 }
 

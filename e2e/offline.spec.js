@@ -1,5 +1,6 @@
 const {test, expect} = require('@playwright/test');
 const fs = require('node:fs/promises');
+const {openFlutter} = require('./flutter_helpers');
 
 function visibleText(page, value) {
   return page.getByText(value, {exact: true})
@@ -29,10 +30,14 @@ const sample = {
   items: [{id: 1, name: 'Arroz', price: 20, quantity: 0.5, unit: 'kg', isPurchased: 1, categoryId: 1, shoppingListId: 1}],
 };
 
-test('installable shell, backup, CRUD and persistence with the network disabled', async ({page, context}) => {
+for (const renderer of ['auto', 'canvaskit']) {
+test(`installable shell and persistence offline (${renderer})`, async ({page, context}) => {
+  const appPath = renderer === 'canvaskit' ? '/?renderer=canvaskit' : '/';
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
-  await page.goto('/');
+  await openFlutter(page, appPath);
+  const assets = await page.evaluate(() => performance.getEntriesByType('resource').map(r => r.name));
+  expect(assets.some(url => url.includes(renderer === 'auto' ? 'main.dart.wasm' : 'main.dart.js'))).toBe(true);
   await expect(page.getByRole('button', {name: 'Backup e restauração'})).toBeVisible();
   await page.getByRole('button', {name: 'Backup e restauração'}).click();
   await fillFlutterField(page, page.getByRole('textbox', {name: 'Conteúdo do backup'}), JSON.stringify(sample));
@@ -58,7 +63,7 @@ test('installable shell, backup, CRUD and persistence with the network disabled'
   const reopened = await context.newPage();
   await context.setOffline(true);
   reopened.on('pageerror', error => errors.push(error.message));
-  await reopened.goto('/');
+  await openFlutter(reopened, appPath);
   expect(await reopened.evaluate(() => fetch('/online.txt?check=offline', {cache: 'no-store'}).then(() => true, () => false))).toBe(false);
   await expect(visibleText(reopened, 'Offline · dados salvos neste aparelho')).toBeVisible();
   await reopened.locator('[flt-semantics-identifier="list-1"]').click();
@@ -69,7 +74,7 @@ test('installable shell, backup, CRUD and persistence with the network disabled'
   await expect(reopened.getByText('Total: R$ 40.00', {exact: true}).first()).toBeVisible();
 
   // A reload at the home screen also stays offline. Export verifies the actual persisted rows.
-  await reopened.reload();
+  await openFlutter(reopened, appPath);
   await reopened.getByRole('button', {name: 'Backup e restauração'}).click();
   const downloaded = reopened.waitForEvent('download');
   await reopened.getByRole('button', {name: 'Baixar backup', exact: true}).click();
@@ -79,6 +84,7 @@ test('installable shell, backup, CRUD and persistence with the network disabled'
   expect(exported.items.find(item => item.name === 'Arroz').quantity).toBe(2);
   expect(errors).toEqual([]);
 });
+}
 
 // Keep accessible DOM diagnostics in CI when a browser check fails.
 test.afterEach(async ({context}, info) => {

@@ -31,7 +31,7 @@ jobs:
         run: flutter analyze --no-fatal-infos --no-fatal-warnings
       - name: Build PWA
         run: |
-          flutter build web --release --pwa-strategy=none --no-web-resources-cdn
+          flutter build web --release --wasm --pwa-strategy=none --no-web-resources-cdn
           python3 tool/build_service_worker.py
       - name: Install browser test tools
         run: |
@@ -40,6 +40,8 @@ jobs:
       - name: Record resolved dependencies
         run: python3 tool/report_dependencies.py
       - name: Exercise persistence and reopening offline
+        env:
+          VERTICE_PERF_BASELINE: https://vertice-gamma-khaki.vercel.app
         run: npm run test:pwa
       - uses: actions/upload-artifact@v4
         if: always()

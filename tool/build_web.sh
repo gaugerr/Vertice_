@@ -16,5 +16,5 @@ if ! command -v flutter >/dev/null; then
   export PATH="$task_sdk_dir/flutter/bin:$PATH"
 fi
 bash tool/prepare_assets.sh
-flutter build web --release --pwa-strategy=none --no-web-resources-cdn
+flutter build web --release --wasm --pwa-strategy=none --no-web-resources-cdn
 python3 tool/build_service_worker.py
