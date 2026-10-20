@@ -55,7 +55,7 @@ class _PwaStatusState extends State<PwaStatus> {
           if (update) TextButton(onPressed: () {
             if (web.window.confirm('Conclua a edição dos campos antes de atualizar. Os dados já salvos serão mantidos. Atualizar agora?')) _applyUpdate();
           }, child: const Text('Atualizar')),
-          if (install && !update) TextButton(onPressed: _install, child: const Text('Instalar')),
+          if (install && !update) TextButton(onPressed: () => _install(), child: const Text('Instalar')),
         ]),
       )),
     );
