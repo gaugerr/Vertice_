@@ -96,7 +96,7 @@ void main() {
     await DatabaseHelper.migrate(db, 1, 3);
     await db.execute("CREATE TRIGGER fail_category BEFORE INSERT ON categories BEGIN SELECT RAISE(ABORT, 'test failure'); END");
     final helper = DatabaseHelper.forDatabase(db);
-    await expectLater(helper.createShoppingListWithCategories(ShoppingListModel(storeName: 'New', date: DateTime(2026), description: '')), throwsA(anything));
+    await expectLater(helper.createShoppingListWithCategories(ShoppingListModel(storeName: 'New', date: DateTime(2026), description: '')), throwsA(isA<DatabaseException>()));
     expect(await db.query('shoppingLists'), hasLength(1));
     expect(await db.query('categories'), hasLength(1));
   });
