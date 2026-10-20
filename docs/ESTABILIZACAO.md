@@ -1,40 +1,38 @@
 # Estabilização antes do PWA
 
-Branch: `fix/base-confiavel-pwa`. Não mesclar na main antes da validação.
+Branch: `fix/base-confiavel-pwa`. A main permanece separada.
 
-## Estado desta entrega
+## Alterações
 
-Foi adicionado um workflow para compilar o app atual em APK debug. Isso não significa que os consertos abaixo foram implementados ou que a compilação passou. Consultar a execução no GitHub Actions.
+- Banco versão 3: renomeia tabelas e colunas legadas em português, preservando IDs, valores e relacionamentos. Schemas ambíguos interrompem a migração sem apagar as tabelas. A atualização é transacional pelo openDatabase. Dados já apagados por versões anteriores não podem ser recuperados.
+- Criação de lista e categorias em uma transação.
+- Total por item = preço por un/kg/L multiplicado pela quantidade, arredondado a centavos; categorias e listas somam esses valores e somente itens comprados. O total da lista filtra seu identificador.
+- Valores antigos não são reinterpretados nem convertidos: conferir preços de kg/L que tenham sido cadastrados como valor total em versões anteriores.
+- Renomeação de listas persistida.
+- Gravações serializadas; alterações na memória só depois da confirmação do banco; falhas exibidas por SnackBar.
+- Nomes não vazios até 50 caracteres, quantidade finita positiva, preço finito não negativo e unidade conhecida.
+- Edição numérica confirmada pelo teclado ou toque fora do campo.
+- Botão de criação desabilitado durante o salvamento.
 
-O APK usa o identificador `com.ggaugerr.vertice.preview` e o nome Vertice Teste, para instalar separado do aplicativo original. Seus dados também ficam separados. Não desinstalar o original para testar esta versão. As chaves debug de diferentes execuções podem ser diferentes; uma atualização pode exigir reinstalar somente o app de teste, perdendo os dados dele.
+## Validação
 
-## Consertos pendentes, em ordem
+A suíte em test/stabilization_test.dart cobre cálculos, falhas de gravação, migração legada, atualização do schema atual, criação atômica e persistência da renomeação. O workflow executa os testes antes de compilar. Consultar o resultado da execução: a existência deste documento não afirma aprovação.
 
-1. Substituir a migração destrutiva do DatabaseHelper por migrações que preservem dados. Inspecionar o schema histórico antes de decidir como converter bancos antigos.
-2. Definir preço por unidade de medida e quantidade, unificar os totais e arredondar dinheiro de forma explícita. Diferenciar previsto e comprado. Conferir como a interface atual apresenta kg e L antes de converter valores existentes.
-3. Tratar falhas de persistência sem deixar a tela divergente do banco; mostrar o erro e restaurar o estado ou atualizar somente após a gravação.
-4. Implementar updateShoppingList e validar nomes, números finitos, preço não negativo e quantidade positiva.
-5. Usar transação na criação da lista com suas categorias.
-6. Separar acesso a dados em repositório antes de migrar para Drift.
-7. Validar Drift no Android e na web, cache offline e backup; somente depois implementar autenticação e sincronização.
+Ainda é necessária validação manual em aparelho físico. Não há migração para Drift, PWA ou Supabase nesta etapa.
 
-Testes prioritários: migração de banco com dados, totais com quantidades fracionadas, rollback de gravações e atomicidade da criação.
+## APK profile
 
-## Como obter o APK
+Na aba Actions, abrir a última execução bem-sucedida de Android test APK desta branch. Baixar o artefato vertice-profile-N, extrair e instalar app-profile.apk no Android.
 
-Abrir a aba Actions, localizar Android test APK e selecionar a execução desta branch. Quando concluir com sucesso, baixar o artefato vertice-teste-N. Extrair o ZIP e instalar app-debug.apk em um Android. O navegador pode pedir login no GitHub para baixar o artefato.
-
-A instalação pode exigir autorização para instalar apps dessa origem. É um APK de desenvolvimento, não uma publicação na Play Store.
+O identificador com.ggaugerr.vertice.preview e o nome Vertice Teste mantêm instalação e dados separados do app original. Não desinstalar o original. Chaves de teste podem variar entre execuções; se a atualização falhar, reinstalar somente a versão de teste apaga os dados dela. O artefato fica disponível por 14 dias. O GitHub pode exigir login para o download.
 
 ## Roteiro manual
 
-- Criar uma lista e conferir as seis categorias.
-- Adicionar produtos por unidade, kg e L, incluindo quantidades fracionadas.
-- Editar preço, quantidade e nome; marcar e desmarcar comprado.
-- Conferir os totais da lista e das categorias.
-- Fechar completamente e reabrir o app; conferir persistência.
-- Repetir sem internet.
-- Excluir itens e uma lista; reabrir e conferir.
-- Registrar resultado, modelo do aparelho, versão do Android e número do artefato.
-
-Este roteiro não substitui testes automatizados e não comprova compatibilidade web. O app ainda usa sqflite.
+1. Criar uma lista; conferir as seis categorias.
+2. Marcar um item de 0,5 kg com preço de R$ 20/kg: total R$ 10.
+3. Conferir totais por item, categoria e lista; desmarcar itens e conferir redução.
+4. Editar e renomear; fechar e reabrir; conferir persistência.
+5. Informar números inválidos e conferir que não substituem os valores salvos.
+6. Excluir item e lista; reabrir e conferir.
+7. Repetir o uso sem conexão.
+8. Registrar aparelho, Android e número do artefato.
