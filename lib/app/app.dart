@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'platform/pwa_status.dart';
 import 'view/backup_dialog.dart';
 import 'package:vertice/app/view/add_shopping_list_form.dart';
 import 'package:vertice/app/view_model/shopping_list_viewmodel.dart';
@@ -43,6 +44,7 @@ class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: const PwaStatus(),
       appBar: AppBar(
         actions: [IconButton(
           tooltip: 'Backup e restauração', icon: const Icon(Icons.save_alt),
