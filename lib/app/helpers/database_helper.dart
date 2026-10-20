@@ -12,10 +12,14 @@ class DatabaseHelper {
   static Database? _database;
 
   // Private constructor: prevents instantiation via DatabaseHelper() elsewhere.
-  DatabaseHelper._init();
+  DatabaseHelper._init() : _providedDatabase = null;
+
+  DatabaseHelper.forDatabase(Database db) : _providedDatabase = db;
+  final Database? _providedDatabase;
 
   // Getter: returns the open database, or initialises it if needed.
   Future<Database> get database async {
+    if (_providedDatabase != null) return _providedDatabase!;
     if (_database != null) return _database!;
     _database = await _initDB('vertice_app.db');
     return _database!;
@@ -27,24 +31,50 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: _createDB,
-      onUpgrade: _upgradeDB,
+      onUpgrade: migrate,
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys = ON');
       },
     );
   }
 
-  // Drops all tables and recreates them with the current schema.
-  // Triggered when the DB version is bumped (e.g. after column renames).
-  Future _upgradeDB(Database db, int oldVersion, int newVersion) async {
-    await db.execute('DROP TABLE IF EXISTS items');
-    await db.execute('DROP TABLE IF EXISTS categories');
-    await db.execute('DROP TABLE IF EXISTS categorias');
-    await db.execute('DROP TABLE IF EXISTS itens');
-    await db.execute('DROP TABLE IF EXISTS shoppingLists');
-    await _createDB(db, newVersion);
+  // openDatabase runs upgrades in a transaction. Unknown schemas fail closed.
+  static Future<void> migrate(Database db, int oldVersion, int newVersion) async {
+    Future<void> renameTable(String oldName, String newName) async {
+      final tables = await db.rawQuery("SELECT name FROM sqlite_master WHERE type = 'table'");
+      final names = tables.map((row) => row['name']).toSet();
+      if (names.contains(oldName)) {
+        if (names.contains(newName)) {
+          throw StateError('Ambiguous database schema: $oldName and $newName');
+        }
+        await db.execute('ALTER TABLE "$oldName" RENAME TO "$newName"');
+      }
+    }
+    await renameTable('ranchos', 'shoppingLists');
+    await renameTable('categorias', 'categories');
+    await renameTable('itens', 'items');
+    const mappings = {
+      'shoppingLists': {'mercado': 'storeName', 'data': 'date', 'descricao': 'description'},
+      'categories': {'tituloCategoria': 'title', 'ranchoId': 'shoppingListId'},
+      'items': {'nomeItem': 'name', 'preco': 'price', 'quantidade': 'quantity',
+        'unidade': 'unit', 'isComprado': 'isPurchased',
+        'categoriaId': 'categoryId', 'ranchoId': 'shoppingListId'},
+    };
+    for (final table in mappings.entries) {
+      final info = await db.rawQuery('PRAGMA table_info("${table.key}")');
+      final columns = info.map((row) => row['name']).toSet();
+      if (columns.isEmpty) throw StateError('Missing table: ${table.key}');
+      for (final column in table.value.entries) {
+        if (columns.contains(column.key)) {
+          if (columns.contains(column.value)) throw StateError('Ambiguous column');
+          await db.execute('ALTER TABLE "${table.key}" RENAME COLUMN "${column.key}" TO "${column.value}"');
+        }
+      }
+    }
+    final violations = await db.rawQuery('PRAGMA foreign_key_check');
+    if (violations.isNotEmpty) throw StateError('Database has orphan records');
   }
 
   Future _createDB(Database db, int version) async {
@@ -103,12 +133,16 @@ class DatabaseHelper {
   Future<int> createShoppingListWithCategories(
     ShoppingListModel newShoppingList,
   ) async {
-    final shoppingListId = await insertShoppingList(newShoppingList);
-    final defaultCategories = CategoryModel.generateDefaults();
-    for (var category in defaultCategories) {
-      await insertCategory(category, shoppingListId);
-    }
-    return shoppingListId;
+    final db = await database;
+    return db.transaction((txn) async {
+      final id = await txn.insert('shoppingLists', newShoppingList.toMap());
+      for (final category in CategoryModel.generateDefaults()) {
+        final map = category.toMap();
+        map['shoppingListId'] = id;
+        await txn.insert('categories', map);
+      }
+      return id;
+    });
   }
 
   // GET ALL SHOPPING LISTS
@@ -180,6 +214,11 @@ class DatabaseHelper {
       where: 'id = ?',
       whereArgs: [item.id],
     );
+  }
+
+  Future<int> updateShoppingList(ShoppingListModel list) async {
+    final db = await database;
+    return db.update('shoppingLists', list.toMap(), where: 'id = ?', whereArgs: [list.id]);
   }
 
   // DELETE ITEM
