@@ -13,6 +13,7 @@ class AddShoppingListForm extends StatefulWidget {
 
 class _AddShoppingListFormState extends State<AddShoppingListForm> {
   final _formKey = GlobalKey<FormState>();
+  bool _saving = false;
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
@@ -106,13 +107,16 @@ class _AddShoppingListFormState extends State<AddShoppingListForm> {
                   elevation: 6,
                   backgroundColor: Colors.deepPurpleAccent,
                 ),
-                onPressed: () async {
+                onPressed: _saving ? null : () async {
                   if (_formKey.currentState!.validate()) {
+                    setState(() => _saving = true);
                     final saved = await widget.viewModel.addShoppingList(
                       storeName: _nameController.text.trim(),
                       date: AppUtils.parseDate(_dateController.text),
                       description: _descriptionController.text.trim(),
                     );
+                    if (!mounted) return;
+                    setState(() => _saving = false);
                     if (saved && context.mounted) Navigator.pop(context);
                   }
                 },
