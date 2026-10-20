@@ -35,8 +35,9 @@ test('installable shell, backup, CRUD and persistence with the network disabled'
   await page.waitForFunction(() => window.verticeOfflineReady === true && !!navigator.serviceWorker.controller);
   await expect.poll(() => page.evaluate(() => window.verticeOnline)).toBe(true);
   await context.setOffline(true);
-  await page.getByRole('textbox', {name: 'Adicionar item', exact: true}).fill('Feijão offline');
-  await page.getByRole('textbox', {name: 'Adicionar item', exact: true}).press('Enter');
+  await page.getByRole('textbox', {name: 'Adicionar item', exact: true}).click();
+  await page.keyboard.insertText('Feijão offline');
+  await page.getByRole('button', {name: 'Adicionar item', exact: true}).click();
   await expect(visibleText(page, 'Feijão offline')).toBeVisible();
   await page.close();
   const reopened = await context.newPage();
@@ -70,6 +71,6 @@ test.afterEach(async ({context}, info) => {
   if (!current) return;
   console.log('SEMANTICS:', JSON.stringify(await current.locator('flt-semantics,input,textarea').evaluateAll(nodes => nodes.map(node => ({
     tag: node.tagName, role: node.getAttribute('role'), label: node.getAttribute('aria-label'),
-    identifier: node.getAttribute('flt-semantics-identifier'), text: node.textContent?.slice(0, 120),
+    identifier: node.getAttribute('flt-semantics-identifier'), value: node.value, text: node.textContent?.slice(0, 120),
   })))));
 });
