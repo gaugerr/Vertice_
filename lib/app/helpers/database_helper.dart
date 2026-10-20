@@ -1,10 +1,12 @@
+import '../data/shopping_repository.dart';
+import '../data/shopping_backup.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:vertice/app/model/category_model.dart';
 import 'package:vertice/app/model/item_model.dart';
 import 'package:vertice/app/model/shopping_list_model.dart';
 
-class DatabaseHelper {
+class DatabaseHelper implements ShoppingRepository {
   // Singleton: ensures only ONE instance of this class exists throughout the app.
   static final DatabaseHelper instance = DatabaseHelper._init();
 
@@ -274,4 +276,27 @@ class DatabaseHelper {
     final id = await db.insert('items', map);
     return id;
   }
+  @override
+  Future<ShoppingBackup> exportBackup() async {
+    final db = await database;
+    return db.transaction((txn) async => ShoppingBackup.fromRows(
+      lists: await txn.query('shoppingLists'),
+      categories: await txn.query('categories'),
+      items: await txn.query('items'),
+    ));
+  }
+
+  @override
+  Future<void> restoreBackup(ShoppingBackup backup) async {
+    final db = await database;
+    await db.transaction((txn) async {
+      await txn.delete('items');
+      await txn.delete('categories');
+      await txn.delete('shoppingLists');
+      for (final row in backup.lists) { await txn.insert('shoppingLists', row); }
+      for (final row in backup.categories) { await txn.insert('categories', row); }
+      for (final row in backup.items) { await txn.insert('items', row); }
+    });
+  }
 }
+
