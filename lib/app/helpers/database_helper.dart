@@ -62,16 +62,49 @@ class DatabaseHelper {
         'unidade': 'unit', 'isComprado': 'isPurchased',
         'categoriaId': 'categoryId', 'ranchoId': 'shoppingListId'},
     };
+    bool needsConversion = false;
+    final selectColumns = <String, String>{};
+    const requiredColumns = {
+      'shoppingLists': ['id', 'storeName', 'date', 'description'],
+      'categories': ['id', 'title', 'shoppingListId'],
+      'items': ['id', 'name', 'price', 'quantity', 'unit', 'isPurchased', 'categoryId', 'shoppingListId'],
+    };
     for (final table in mappings.entries) {
       final info = await db.rawQuery('PRAGMA table_info("${table.key}")');
       final columns = info.map((row) => row['name']).toSet();
-      if (columns.isEmpty) throw StateError('Missing table: ${table.key}');
-      for (final column in table.value.entries) {
-        if (columns.contains(column.key)) {
-          if (columns.contains(column.value)) throw StateError('Ambiguous column');
-          await db.execute('ALTER TABLE "${table.key}" RENAME COLUMN "${column.key}" TO "${column.value}"');
+      final selections = <String>[];
+      for (final target in requiredColumns[table.key]!) {
+        final legacy = table.value.entries.where((entry) => entry.value == target);
+        final old = legacy.isEmpty ? target : legacy.single.key;
+        if (old != target && columns.contains(old) && columns.contains(target)) {
+          throw StateError('Ambiguous column in ${table.key}');
         }
+        final source = columns.contains(target) ? target : old;
+        if (!columns.contains(source)) throw StateError('Unsupported schema: ${table.key}.$target');
+        needsConversion = needsConversion || source != target;
+        selections.add('"$source" AS "$target"');
       }
+      // Do not silently discard unrecognized columns.
+      if (columns.length != requiredColumns[table.key]!.length) {
+        throw StateError('Unsupported extra columns in ${table.key}');
+      }
+      selectColumns[table.key] = selections.join(', ');
+    }
+    if (needsConversion) {
+      // Copy before dropping originals. Works on Android SQLite versions that
+      // predate RENAME COLUMN. openDatabase rolls everything back on failure.
+      await db.execute('CREATE TABLE _vertice_lists (id INTEGER PRIMARY KEY AUTOINCREMENT, storeName TEXT NOT NULL, date INTEGER NOT NULL, description TEXT)');
+      await db.execute('CREATE TABLE _vertice_categories (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, shoppingListId INTEGER REFERENCES _vertice_lists(id) ON DELETE CASCADE)');
+      await db.execute('CREATE TABLE _vertice_items (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, price REAL NOT NULL, quantity REAL NOT NULL, unit TEXT NOT NULL, isPurchased INTEGER NOT NULL, categoryId INTEGER REFERENCES _vertice_categories(id) ON DELETE CASCADE, shoppingListId INTEGER REFERENCES _vertice_lists(id) ON DELETE CASCADE)');
+      await db.execute('INSERT INTO _vertice_lists SELECT ${selectColumns['shoppingLists']} FROM shoppingLists');
+      await db.execute('INSERT INTO _vertice_categories SELECT ${selectColumns['categories']} FROM categories');
+      await db.execute('INSERT INTO _vertice_items SELECT ${selectColumns['items']} FROM items');
+      await db.execute('DROP TABLE items');
+      await db.execute('DROP TABLE categories');
+      await db.execute('DROP TABLE shoppingLists');
+      await db.execute('ALTER TABLE _vertice_lists RENAME TO shoppingLists');
+      await db.execute('ALTER TABLE _vertice_categories RENAME TO categories');
+      await db.execute('ALTER TABLE _vertice_items RENAME TO items');
     }
     final violations = await db.rawQuery('PRAGMA foreign_key_check');
     if (violations.isNotEmpty) throw StateError('Database has orphan records');
