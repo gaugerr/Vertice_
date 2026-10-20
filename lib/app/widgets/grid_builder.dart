@@ -14,17 +14,20 @@ class MyGridBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GridView.builder(
-      padding: const EdgeInsets.all(18),
-
-      itemCount: itemCount,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 10,
-        crossAxisCount: columns,
-        childAspectRatio: columns == 1 ? 2.5 : 0.8,
-      ),
-      itemBuilder: itemBuilder,
-    );
+    return LayoutBuilder(builder: (context, constraints) {
+      final count = columns == 1
+          ? (constraints.maxWidth >= 700 ? 2 : 1)
+          : (constraints.maxWidth >= 700 ? 3 : 2);
+      return GridView.builder(
+        padding: const EdgeInsets.fromLTRB(18, 18, 18, 100),
+        itemCount: itemCount,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisSpacing: 10, mainAxisSpacing: 10,
+          crossAxisCount: count,
+          mainAxisExtent: columns == 1 ? 155 : 285,
+        ),
+        itemBuilder: itemBuilder,
+      );
+    });
   }
 }
