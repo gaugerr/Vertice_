@@ -37,6 +37,8 @@ jobs:
         run: |
           npm install --ignore-scripts --no-audit --no-fund
           npx playwright install --with-deps chromium
+      - name: Record resolved dependencies
+        run: python3 tool/report_dependencies.py
       - name: Exercise persistence and reopening offline
         run: npm run test:pwa
       - uses: actions/upload-artifact@v4
