@@ -87,7 +87,7 @@ class ShoppingListViewModel extends ChangeNotifier {
 
     final generatedId = await _db.insertItem(
       item,
-      category.id,
+      category.id!,
     );
 
     final itemWithId = item.copyWith(id: generatedId);
