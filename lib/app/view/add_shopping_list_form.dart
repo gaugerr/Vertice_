@@ -20,6 +20,13 @@ class _AddShoppingListFormState extends State<AddShoppingListForm> {
   final TextEditingController _descriptionController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    final now = DateTime.now();
+    _dateController.text = '${now.day}/${now.month}/${now.year}';
+  }
+
+  @override
   void dispose() {
     _nameController.dispose();
     _dateController.dispose();
@@ -33,7 +40,7 @@ class _AddShoppingListFormState extends State<AddShoppingListForm> {
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
-      child: Form(
+      child: SingleChildScrollView(child: Form(
         key: _formKey,
         child: Container(
           padding: EdgeInsets.all(30),
@@ -126,6 +133,7 @@ class _AddShoppingListFormState extends State<AddShoppingListForm> {
           ),
         ),
       ),
-    );
+    ));
   }
 }
+
