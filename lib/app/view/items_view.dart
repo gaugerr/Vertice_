@@ -19,6 +19,7 @@ class ItemsView extends StatefulWidget {
 
 class _ItemsViewState extends State<ItemsView> {
   final _formKey = GlobalKey<FormState>();
+  bool _adding = false;
   final TextEditingController _itemNameController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
 
@@ -70,6 +71,7 @@ class _ItemsViewState extends State<ItemsView> {
               key: _formKey,
               child: TextFormField(
                 controller: _itemNameController,
+                enabled: !_adding,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -86,12 +88,16 @@ class _ItemsViewState extends State<ItemsView> {
                   ),
                 ),
                 focusNode: _focusNode,
-                onFieldSubmitted: (value) {
+                onFieldSubmitted: (value) async {
                   if (_formKey.currentState!.validate()) {
-                    widget.viewModel.addItem(
+                    setState(() => _adding = true);
+                    final saved = await widget.viewModel.addItem(
                       category: widget.category,
                       itemName: value.trim(),
                     );
+                    if (!mounted) return;
+                    setState(() => _adding = false);
+                    if (!saved) return;
                     _itemNameController.clear();
                     _formKey.currentState!.reset();
                     _focusNode.requestFocus();
@@ -111,6 +117,7 @@ class _ItemsViewState extends State<ItemsView> {
                     itemBuilder: (context, index) {
                       final item = items[index];
                       return ItemCard(
+                        key: ValueKey(item.id),
                         viewModel: widget.viewModel,
                         itemModel: item,
                       );
