@@ -1,6 +1,11 @@
 const {test, expect} = require('@playwright/test');
 const fs = require('node:fs/promises');
 
+function visibleText(page, value) {
+  return page.getByText(value, {exact: true})
+    .or(page.locator(`[aria-label*=${JSON.stringify(value)}]`)).first();
+}
+
 const sample = {
   format: 'vertice-backup', version: 1,
   lists: [{id: 1, storeName: 'Mercado offline', date: 1792454400000, description: 'Teste PWA'}],
@@ -31,15 +36,15 @@ test('installable shell, backup, CRUD and persistence with the network disabled'
   await context.setOffline(true);
   await page.getByRole('textbox', {name: 'Adicionar item', exact: true}).fill('Feijão offline');
   await page.getByRole('textbox', {name: 'Adicionar item', exact: true}).press('Enter');
-  await expect(page.getByText('Feijão offline', {exact: true})).toBeVisible();
+  await expect(visibleText(page, 'Feijão offline')).toBeVisible();
   await page.close();
   const reopened = await context.newPage();
   reopened.on('pageerror', error => errors.push(error.message));
   await reopened.goto('/');
-  await expect(reopened.getByText('Offline · dados salvos neste aparelho', {exact: true})).toBeVisible();
+  await expect(visibleText(reopened, 'Offline · dados salvos neste aparelho')).toBeVisible();
   await reopened.locator('[flt-semantics-identifier="list-1"]').click();
   await reopened.locator('[flt-semantics-identifier="category-1"]').click();
-  await expect(reopened.getByText('Feijão offline', {exact: true})).toBeVisible();
+  await expect(visibleText(reopened, 'Feijão offline')).toBeVisible();
   await expect(reopened.getByRole('textbox', {name: 'Quantity', exact: true})).toHaveValue('2.0');
   await expect(reopened.getByText('Total: R$ 40.00', {exact: true}).first()).toBeVisible();
 
