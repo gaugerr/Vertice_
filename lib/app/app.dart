@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'view/backup_dialog.dart';
 import 'package:vertice/app/view/add_shopping_list_form.dart';
 import 'package:vertice/app/view_model/shopping_list_viewmodel.dart';
 import 'package:vertice/app/widgets/bottom_sheet.dart';
@@ -43,13 +44,17 @@ class _AppState extends State<App> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        actions: [IconButton(
+          tooltip: 'Backup e restauração', icon: const Icon(Icons.save_alt),
+          onPressed: () => showDialog(context: context, builder: (_) => BackupDialog(viewModel: viewModel)),
+        )],
         centerTitle: true,
         title: Column(
           children: [
             Text('VÉRTICE', style: TextStyle(fontWeight: FontWeight.bold)),
             Text(
               'O ponto de encontro entre necessidade e gasto',
-              style: TextStyle(color: Colors.white38, fontSize: 14),
+              style: TextStyle(color: Colors.white38, fontSize: 11),
             ),
           ],
         ),
@@ -79,6 +84,15 @@ class _AppState extends State<App> {
       body: ListenableBuilder(
         listenable: viewModel,
         builder: (context, child) {
+          if (viewModel.isLoading) return const Center(child: CircularProgressIndicator());
+          if (viewModel.loadError != null) return Center(child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              Text(viewModel.loadError!, textAlign: TextAlign.center),
+              const SizedBox(height: 16),
+              FilledButton(onPressed: viewModel.initializeShoppingLists, child: const Text('Tentar novamente')),
+            ]),
+          ));
           final lists = viewModel.shoppingLists;
 
           if (lists.isEmpty) {
@@ -106,3 +120,4 @@ class _AppState extends State<App> {
     );
   }
 }
+
