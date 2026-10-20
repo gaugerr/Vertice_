@@ -39,6 +39,8 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   if (event.request.method !== 'GET' || url.origin !== self.location.origin) return;
+  // Connectivity checks must reach the network, even when the app is cached.
+  if (url.pathname.endsWith('/online.txt')) return;
   event.respondWith((async () => {
     const cache = await caches.open(CACHE);
     if (event.request.mode === 'navigate') {
