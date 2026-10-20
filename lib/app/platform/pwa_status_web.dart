@@ -52,14 +52,8 @@ class _PwaStatusState extends State<PwaStatus> {
               : 'Preparando uso offline… mantenha aberto',
             style: const TextStyle(fontSize: 12),
           )),
-          if (update) TextButton(onPressed: () async {
-            final accepted = await showDialog<bool>(context: context, builder: (context) => AlertDialog(
-              title: const Text('Atualizar o Vértice?'),
-              content: const Text('Conclua a edição dos campos antes de atualizar. Os dados já salvos serão mantidos.'),
-              actions: [TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Depois')),
-                FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Atualizar'))],
-            ));
-            if (accepted == true) _applyUpdate();
+          if (update) TextButton(onPressed: () {
+            if (web.window.confirm('Conclua a edição dos campos antes de atualizar. Os dados já salvos serão mantidos. Atualizar agora?')) _applyUpdate();
           }, child: const Text('Atualizar')),
           if (install && !update) TextButton(onPressed: _install, child: const Text('Instalar')),
         ]),
